@@ -30,7 +30,7 @@ class MyDelegate(DefaultDelegate):
     def handleNotification(self, cHandle, data):     
         print(data.decode('utf-8'))
         self.currentTime = time.time()
-        self.weightList.append(data.decode ('utf-8'))
+        self.weightList.append(int(data.decode ('utf-8')))
         if (self.currentTime - self.time > 20) :
             self.upload()
 
