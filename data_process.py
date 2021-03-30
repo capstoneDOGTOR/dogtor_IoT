@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
+
 from sklearn.cluster import KMeans
 import time
 import statistics
@@ -24,7 +24,7 @@ class Camera():
     def capture(self):
         self.camera.start_preview()
         stream = BytesIO()
-        sleep(2)
+        time.sleep(2)
 
         self.camera.capture(stream, 'jpeg')
         img = Image.open(stream)
