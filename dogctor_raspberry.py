@@ -1,7 +1,7 @@
 from bluepy.btle import *
 import threading    
 import bluepy.btle
-# from data_process import *
+from data_process import *
 
 def findDevice () : 
     target_name = "BT04"   # target device name
@@ -18,15 +18,16 @@ def findDevice () :
                 return peripheral
     return 
 
-class MyDelegate(DefaultDelegate):                    #Constructor (run once on startup)
+class MyDelegate(DefaultDelegate):            
+    #Constructor (run once on startup)
     def __init__(self, params):
         DefaultDelegate.__init__(self)
         self.time = time.time()
         self.currentTime = 0
         self.weightList = []
 
-
-    def handleNotification(self, cHandle, data):      #func is caled on notifications
+     #func is called on notifications
+    def handleNotification(self, cHandle, data):     
         print(data.decode('utf-8'))
         self.currentTime = time.time()
         self.weightList.append(data.decode ('utf-8'))
@@ -60,12 +61,18 @@ class ScanDelegate(DefaultDelegate):
 def rcv_data (device,  delegate) :
     timelimit = 20
     last = -1
+    weight_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb"
     chList = device.getCharacteristics()
-    print ("Handle   UUID                                Properties")
-    print ("-------------------------------------------------------")                 
+    # print ("Handle   UUID                                Properties")
+    # print ("-------------------------------------------------------")                 
     for ch in chList:
+        if ch.uuid == weight_UUID :
+            weightHandle = ch.getHandle()+1
         print ("  0x"+ format(ch.getHandle(),'02X')  +"   "+str(ch.uuid) +" " + ch.propertiesToString())
-    device.writeCharacteristic(36, struct.pack('<bb', 0x01, 0x00), withResponse=True)
+    # Turn notifications on weight Service 
+    device.writeCharacteristic(weightHandle, struct.pack('<bb', 0x01, 0x00), withResponse=True)
+    
+    
     while (True):    
         if device.waitForNotifications(1.0) :
             last = time.time()
@@ -88,34 +95,18 @@ def main():
             else :
                 print ("The device cannot be found")
                 # time.sleep(10)
+
+        #set Delegate into peripheral object
         delegate = MyDelegate(peripheral)
         peripheral.setDelegate(delegate)
         print("Find Device")
-
         t = threading.Thread(target = rcv_data, args =  (peripheral,delegate ))
         threads.append(t)
-
         for iter in range(len(threads)) :
             threads[iter].start()
-
         for iter in range(len(threads)) :
             threads[iter].join()
 
-        # rcv_data(peripheral,delegate )
-
-        # for iter in range(len(Peripherals)) :
-        #     Peripherals[iter].setDelegate(MyDelegate(Peripherals[iter]) )
-        #     # Get MotionService
-        #     MotionService=Peripherals[iter].getServiceByUUID(motion_service_uuid)
-        #     # Get The Motion-Characteristics
-        #     MotionC = MotionService.getCharacteristics(motion_char_uuid)[0]
-        #     # Get The handle tf the  Button-Characteristics
-        #     hMotionC = MotionC.getHandle()+1
-        #     # Turn notifications on by setting bit0 in the CCC more info on:
-        #     Peripherals[iter].writeCharacteristic(hMotionC, struct.pack('<bb', 0x01, 0x00), withResponse=True)
-
-        # print (Peripherals[iter].addr + " : Notification is turned on for Raw_data")
-  
 
 if __name__ == '__main__':
     main()
