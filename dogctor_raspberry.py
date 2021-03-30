@@ -35,15 +35,15 @@ class MyDelegate(DefaultDelegate):                    #Constructor (run once on 
 
     def upload (self) :
         self.time = self.currentTime 
-        # Parce = Parcing()
-        # Cam = Camera()
-        # print('color...')
-        # img = Cam.capture()
-        # color = Parce.restroom(img)
-        # food = Parce.restaurant(self.weightList)
-        # data_send = make_dict(name1 = 'color', val1 = color, name2='eat', val2=food)
-        # response = Parce.send_json(data_send)
-        # print('response :', response.status_code)
+        Parce = Parcing()
+        Cam = Camera()
+        print('color...')
+        img = Cam.capture()
+        color = Parce.restroom(img)
+        food = Parce.restaurant(self.weightList)
+        data_send = make_dict(name1 = 'color', val1 = color, name2='eat', val2=food)
+        response = Parce.send_json(data_send)
+        print('response :', response.status_code)
          
 
 class ScanDelegate(DefaultDelegate):
