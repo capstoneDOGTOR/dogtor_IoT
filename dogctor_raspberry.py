@@ -31,7 +31,7 @@ class MyDelegate(DefaultDelegate):
         print(data.decode('utf-8'))
         self.currentTime = time.time()
         self.weightList.append(data.decode ('utf-8'))
-        if ( self.time - self.currentTime > 20) :
+        if (self.currentTime - self.time > 20) :
             self.upload()
 
     def upload (self) :
@@ -63,8 +63,8 @@ def rcv_data (device,  delegate) :
     last = -1
     weight_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb"
     chList = device.getCharacteristics()
-    # print ("Handle   UUID                                Properties")
-    # print ("-------------------------------------------------------")                 
+    print ("Handle   UUID                                Properties")
+    print ("-------------------------------------------------------")                 
     for ch in chList:
         if ch.uuid == weight_UUID :
             weightHandle = ch.getHandle()+1
@@ -78,7 +78,7 @@ def rcv_data (device,  delegate) :
             last = time.time()
             pass
         else :
-            if (last - time.time() > 60):
+            if (time.time() - last   > 60):
                 delegate.upload()
             else :
                 pass
