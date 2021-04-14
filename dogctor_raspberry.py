@@ -14,7 +14,6 @@ def findDevice () :
                 target_address = dev.addr
                 # create peripheral class
                 peripheral = Peripheral(target_address, "public")
-                print("I Find Device")
                 return peripheral
     return 
 
@@ -25,27 +24,30 @@ class MyDelegate(DefaultDelegate):
         self.time = time.time()
         self.currentTime = 0
         self.weightList = []
-
+        self.parce = Parcing()
+        self.cam = Camera()
      #func is called on notifications
     def handleNotification(self, cHandle, data):     
-        print(data.decode('utf-8'))
+        print("Get Data :" ,data.decode('utf-8'), "g")
         self.currentTime = time.time()
         self.weightList.append(int(data.decode ('utf-8')))
         if (self.currentTime - self.time > 20) :
             self.upload()
 
     def upload (self) :
-        self.time = self.currentTime 
-        Parce = Parcing()
-        Cam = Camera()
-        print('color...')
-        img = Cam.capture()
-        color = Parce.restroom(img)
-        food = Parce.restaurant(self.weightList)
-        data_send = make_dict(name1 = 'color', val1 = color, name2='eat', val2=food)
-        response = Parce.send_json(data_send)
-        print('response :', response.status_code)
-         
+        print("Data Analysis...")
+        try :
+            self.time = self.currentTime 
+            img = self.cam.capture()
+            color = self.parce.restroom(img)
+            food = self.parce.restaurant(self.weightList)
+            self.weightList = []
+            print("Data Analysis Done")
+            data_send = make_dict(name1 = 'color', val1 = color, name2='eat', val2=food)
+            response = self.parce.send_json(data_send)
+            print('response :', response.text)
+        except :
+            pass
 
 class ScanDelegate(DefaultDelegate):
     def __init__(self):
@@ -86,7 +88,6 @@ def rcv_data (device,  delegate) :
 def main():
     threads = []
     #bluepy.btle.Debugging = True
-    print("main")
     while (True):
         while (True) :
             peripheral = findDevice()

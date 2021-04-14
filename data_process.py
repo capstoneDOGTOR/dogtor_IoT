@@ -37,6 +37,7 @@ class Parcing():
         self.cluster = 4
 
     def restroom(self, img):
+        cv2.imwrite('img0.jpg', img)
         flat_image = np.reshape(img, [-1, 3])
 
         # segmentation
@@ -44,6 +45,7 @@ class Parcing():
         kmeans.fit(flat_image)
         labels = kmeans.labels_
         labels = np.reshape(labels,img.shape[:2])
+        cv2.imwrite('img1.jpg', labels)
         # plt.imshow(labels)
         # plt.show()
 
@@ -68,9 +70,10 @@ class Parcing():
                 cnt = n
 
         color = color_list[cnt]
+        cv2.imwrite('img3.jpg', np.tile(color / 255, (100,100,1)))
         # plt.imshow(np.tile(color / 255, (100, 100, 1)))
         # plt.show()
-        return color
+        return str(round(color[0])) + ' ' + str(round(color[1])) + ' ' + str(round(color[2]))
 
     def restaurant(self, weight_list):
         before_weight = 0
@@ -84,17 +87,18 @@ class Parcing():
             max_weight = max(weight_list)
             min_weight = min(weight_list)
             food = max_weight - min_weight
-
-            if (food > median_weight * 3):
-                weight_list.remove(max_weight)
-            else:
-                break
-
+            
+            break;
+            #if (food > median_weight * 10):
+            #    weight_list.remove(max_weight)
+            #else:
+            #    break
+        
         return food
 
     def send_json(self, data):
         URL = 'http://13.209.18.94:3000/users'
-
+        print('data :', data)
         res = requests.post(URL, json=data)
         #print('POST    :', res.status_code)
         #print(res.text)
