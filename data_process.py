@@ -26,9 +26,8 @@ class Camera():
         return img
 
 class Parcing():
-    def __init__(self, uid):
+    def __init__(self, uid=123):
         self.cluster = 5
-        self.dict_list = []
         self.uid = uid
 
     def hsv2rgb(self, hsv):
@@ -63,21 +62,16 @@ class Parcing():
         return np.array([r * 255, g * 255, b * 255])
 
 
-    def make_restaurant_dict(self, f1):
+    def make_restaurant_dict(self, weight):
         dict = {
-            'uid': self.uid,
-            'food': f1,
+            'weight': weight,
         }
         return dict
 
-    def make_restroom_dict(self, s1, s2, s3, s4, s5):
+    def make_restroom_dict(self, rgb, size):
         dict = {
-            'uid': self.uid,
-            'flag': s1, # small, big
-            'r': s2,
-            'g': s3,
-            'b': s4,
-            'size': s5  # 소수점 세번째까지
+            'RGB': rgb,
+            'size': size  # 소수점 세번째까지
         }
         return dict
 
@@ -127,12 +121,14 @@ class Parcing():
             if color[2] < 150:
                 if big_rgb is None or np.linalg.norm(big_rgb - white) < np.linalg.norm(rgb - white):
                     big_rgb = rgb
-                    self.dict_list.append(self.make_restroom_dict('big', rgb[0], rgb[1], rgb[2], round(size * 100, 3)))
+                    rgb = '#' + str(hex(rgb[0])) + str(hex(rgb[1])) + str(hex(rgb[2]))
+                    dict = self.make_restroom_dict(rgb, round(size * 100, 3))
+                    self.send_json(dict, 'poo')
             else:
                 if small_rgb is None or np.linalg.norm(small_rgb - white) < np.linalg.norm(rgb - white):
-                    small_rgb = rgb
-                    self.dict_list.append(self.make_restroom_dict('small', rgb[0], rgb[1], rgb[2], round(size * 100, 3)))
-
+                    rgb = '#' + str(hex(rgb[0])) + str(hex(rgb[1])) + str(hex(rgb[2]))
+                    dict = self.make_restroom_dict(rgb, round(size * 100, 3))
+                    self.send_json(dict, 'poo')
 
     def restaurant(self, weight_list):
         weights = np.array(weight_list)
@@ -141,16 +137,13 @@ class Parcing():
         iqr = quantile[1] - quantile[0]
         outlier_max = iqr * 1.5 + quantile[1]
         result = weights[np.where(weights <= outlier_max)]
-        self.dict_list.append(self.make_restaurant_dict(result.max() - result.min()))
+        dict = self.make_restroom_dict(result.max() - result.min())
+        self.send_json(dict, 'intake')
 
-    def send_json(self, data):
-        URL = 'http://13.209.18.94:3000/users'
+    def send_json(self, data, where):
+        URL = 'http://13.209.18.94:3000/info/' + where
 
-        res = requests.post(URL, json=data)
+        res = requests.post(URL, json=data, headers = {'Authorization', self.uid})
         #print('POST    :', res.status_code)
         #print(res.text)
         return res
-
-    def dict_list_pop(self):
-        if len(self.dict_list) != 0:
-            return self.dict_list.pop()
