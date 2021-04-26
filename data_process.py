@@ -106,8 +106,8 @@ class Parcing():
             rgb = self.hsv2rgb(hsvs[i])
             if rgb[0] < 180 or rgb[1] < 180 or rgb[2] < 180:
                 result_list.append((hsvs[i], sizes[i]))
-                print('hsv      :', hsvs[i])
-                print('rgb      :', rgb)
+                # print('hsv      :', hsvs[i])
+                # print('rgb      :', rgb)
                 # plt.imshow(cv2.cvtColor(np.tile(hsvs[i], (100, 100, 1)).astype('uint8'), cv2.COLOR_HSV2RGB))
                 # plt.show()
 
@@ -121,14 +121,16 @@ class Parcing():
             if color[2] < 150:
                 if big_rgb is None or np.linalg.norm(big_rgb - white) < np.linalg.norm(rgb - white):
                     big_rgb = rgb
-                    rgb = '#' + str(hex(rgb[0])) + str(hex(rgb[1])) + str(hex(rgb[2]))
+                    rgb = '#' + str(hex(rgb[0])[2:]) + str(hex(rgb[1])[2:]) + str(hex(rgb[2])[2:])
                     dict = self.make_restroom_dict(rgb, round(size * 100, 3))
+                    print('poo  :', dict)
                     self.send_json(dict, 'poo')
             else:
                 if small_rgb is None or np.linalg.norm(small_rgb - white) < np.linalg.norm(rgb - white):
-                    rgb = '#' + str(hex(rgb[0])) + str(hex(rgb[1])) + str(hex(rgb[2]))
+                    rgb = '#' + str(hex(rgb[0])[2:]) + str(hex(rgb[1])[2:]) + str(hex(rgb[2])[2:])
                     dict = self.make_restroom_dict(rgb, round(size * 100, 3))
-                    self.send_json(dict, 'poo')
+                    print('pee  :', dict)
+                    self.send_json(dict, 'pee')
 
     def restaurant(self, weight_list):
         weights = np.array(weight_list)
@@ -138,6 +140,7 @@ class Parcing():
         outlier_max = iqr * 1.5 + quantile[1]
         result = weights[np.where(weights <= outlier_max)]
         dict = self.make_restaurant_dict(result.max() - result.min())
+        print(dict)
         self.send_json(dict, 'intake')
 
     def send_json(self, data, where):
