@@ -83,7 +83,7 @@ class Parcing():
         # plt.show()
 
         # segmentation
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         flat_image = np.reshape(img, [-1, 3])
         kmeans = KMeans(n_clusters=self.cluster)
         kmeans.fit(flat_image)
