@@ -64,14 +64,14 @@ class Parcing():
 
     def make_restaurant_dict(self, weight):
         dict = {
-            'weight': weight,
+            'weight': str(weight),
         }
         return dict
 
     def make_restroom_dict(self, rgb, size):
         dict = {
-            'RGB': rgb,
-            'size': size  # 소수점 세번째까지
+            'RGB': str(rgb),
+            'size': str(size)  # 소수점 세번째까지
         }
         return dict
 
