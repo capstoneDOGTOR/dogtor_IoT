@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import time
 import statistics
@@ -108,8 +108,8 @@ class Parcing():
                 result_list.append((hsvs[i], sizes[i]))
                 print('hsv      :', hsvs[i])
                 print('rgb      :', rgb)
-                plt.imshow(cv2.cvtColor(np.tile(hsvs[i], (100, 100, 1)).astype('uint8'), cv2.COLOR_HSV2RGB))
-                plt.show()
+                # plt.imshow(cv2.cvtColor(np.tile(hsvs[i], (100, 100, 1)).astype('uint8'), cv2.COLOR_HSV2RGB))
+                # plt.show()
 
         small_rgb = None
         big_rgb = None
@@ -137,7 +137,7 @@ class Parcing():
         iqr = quantile[1] - quantile[0]
         outlier_max = iqr * 1.5 + quantile[1]
         result = weights[np.where(weights <= outlier_max)]
-        dict = self.make_restroom_dict(result.max() - result.min())
+        dict = self.make_restaurant_dict(result.max() - result.min())
         self.send_json(dict, 'intake')
 
     def send_json(self, data, where):
