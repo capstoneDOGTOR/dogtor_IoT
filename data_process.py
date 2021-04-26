@@ -121,13 +121,13 @@ class Parcing():
             if color[2] < 150:
                 if big_rgb is None or np.linalg.norm(big_rgb - white) < np.linalg.norm(rgb - white):
                     big_rgb = rgb
-                    rgb = '#' + str(hex(rgb[0])[2:]) + str(hex(rgb[1])[2:]) + str(hex(rgb[2])[2:])
+                    rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
                     dict = self.make_restroom_dict(rgb, round(size * 100, 3))
                     print('poo  :', dict)
                     self.send_json(dict, 'poo')
             else:
                 if small_rgb is None or np.linalg.norm(small_rgb - white) < np.linalg.norm(rgb - white):
-                    rgb = '#' + str(hex(rgb[0])[2:]) + str(hex(rgb[1])[2:]) + str(hex(rgb[2])[2:])
+                    rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
                     dict = self.make_restroom_dict(rgb, round(size * 100, 3))
                     print('pee  :', dict)
                     self.send_json(dict, 'pee')
