@@ -26,7 +26,7 @@ class Camera():
         return img
 
 class Parcing():
-    def __init__(self, uid=123):
+    def __init__(self, uid):
         self.cluster = 5
         self.uid = uid
 

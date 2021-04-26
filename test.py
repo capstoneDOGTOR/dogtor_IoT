@@ -1,6 +1,6 @@
 from data_process import *
 
-uid = 123
+uid = '123'
 camera = Camera()
 parcing = Parcing(uid)
 
