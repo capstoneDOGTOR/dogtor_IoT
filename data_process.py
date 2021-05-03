@@ -8,6 +8,9 @@ import requests
 from picamera import PiCamera
 from io import BytesIO
 from PIL import Image
+import RPi.GPIO as GPIO
+from hx711 import HX711
+from emulated_hx711 import HX711
 
 class Camera():
     def __init__(self):
@@ -72,6 +75,12 @@ class Parcing():
         dict = {
             'RGB': str(rgb),
             'size': str(size)  # 소수점 세번째까지
+        }
+        return dict
+
+    def make_weight_dict(self, weight):
+        dict = {
+            'weight': str(round(weight,0)),
         }
         return dict
 
@@ -150,3 +159,20 @@ class Parcing():
         #print('POST    :', res.status_code)
         #print(res.text)
         return res
+
+    def weight(self):
+        hx = HX711(19, 20)
+        hx.set_reading_format("MSB", "MSB")
+        hx.set_reference_unit(1)
+        hx.reset()
+        hx.tare()
+
+        val = hx.get_weight(5)
+        # hx.power_down()
+        # hx.power_up()
+        # time.sleep(0.1)
+        GPIO.cleanup()
+
+        dict = self.make_weight_dict(val)
+        print(dict)
+        self.send_json(dict, 'weight')
