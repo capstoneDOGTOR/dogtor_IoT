@@ -62,8 +62,36 @@ class Parcing():
         m = v - c
         r, g, b = r_ + m, g_ + m, b_ + m
 
-        return np.array([r * 255, g * 255, b * 255])
+        return np.array([r * 255, g * 255, b * 255]).astype('uint8')
 
+    def find_pad(self, img):
+        mark = np.copy(img)
+
+        b_threshold = 200
+        g_threshold = 200
+        r_threshold = 200
+
+        thresholds = (img[:, :, 0] > b_threshold) & (img[:, :, 1] > g_threshold) & (img[:, :, 2] > r_threshold)
+        mark[thresholds] = [255, 255, 255]
+
+        # plt.imshow(cv2.cvtColor(mark, cv2.COLOR_BGR2RGB))
+        # plt.show()
+        return mark
+
+    def region_of_interest(self, img, vertices):
+
+        mask = np.zeros_like(img)
+        color = (255, 255, 255)
+
+        cv2.fillPoly(mask, vertices, color)
+        # plt.imshow(mask)
+        # plt.show()
+
+        roi_image = cv2.bitwise_and(img, mask)
+        # plt.imshow(cv2.cvtColor(roi_image, cv2.COLOR_BGR2RGB))
+        # plt.show()
+
+        return roi_image
 
     def make_restaurant_dict(self, weight):
         dict = {
@@ -71,25 +99,34 @@ class Parcing():
         }
         return dict
 
-    def make_restroom_dict(self, rgb, size):
+    def make_restroom_dict(self, rgb, hsv, size):
         dict = {
             'RGB': str(rgb),
+            'HSV': str(hsv),
             'size': str(size)  # 소수점 세번째까지
         }
         return dict
 
     def make_weight_dict(self, weight):
         dict = {
-            'weight': str(round(weight,0)),
+            'weight': str(round(weight, 0)),
         }
         return dict
 
     def restroom(self, img):
-        # adjusting brightness
-        bright = 200 - np.mean(img)
-        img = np.clip(img + bright, 0, 255).astype(np.uint8)
-        # plt.imshow(img)
+        # brightness
+        # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # plt.show()
+        bright = 220 - np.mean(img)
+        img = np.clip(img + bright, 0, 255).astype(np.uint8)
+        # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        # plt.show()
+
+        # ROI, preprocessing
+        height, width = img.shape[:2]
+        vertices = np.array([[(width/5, 0), (width/5*4, 0), (width/5*4, height), (width/5, height)]], dtype=np.int32)
+        roi_img = self.region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
+        img = self.find_pad(roi_img)
 
         # segmentation
         img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -106,40 +143,66 @@ class Parcing():
         (hist, _) = np.histogram(labels, bins=numlabels)
         hist = hist.astype('float')
         sizes = hist / hist.sum()
-        hsvs = kmeans.cluster_centers_
+        colors = np.array([[int(x[0]),int(x[1]),int(x[2])] for x in kmeans.cluster_centers_])
+
+        # print('color    :', colors)
         # print('sizes    :', sizes)
 
-        # compare color
-        result_list = []
-        for i in range(len(hsvs)):
-            rgb = self.hsv2rgb(hsvs[i])
-            if rgb[0] < 180 or rgb[1] < 180 or rgb[2] < 180:
-                result_list.append((hsvs[i], sizes[i]))
-                # print('hsv      :', hsvs[i])
-                # print('rgb      :', rgb)
-                # plt.imshow(cv2.cvtColor(np.tile(hsvs[i], (100, 100, 1)).astype('uint8'), cv2.COLOR_HSV2RGB))
-                # plt.show()
+        black = np.array([0,0,0])
+        white = np.array([200,200,200])
 
-        small_rgb = None
-        big_rgb = None
-        white = np.array([255, 255, 255])
-        for i in range(len(result_list)):
-            color, size = result_list[i]
-            rgb = self.hsv2rgb(color).astype('uint8')
+        poo_rgb = np.array([0,0,0])
+        poo_hsv = np.array([0,0,0])
+        poo_size = 0
+        poo_cnt = 0
+        pee_rgb = np.array([0,0,0])
+        pee_hsv = np.array([0,0,0])
+        pee_size = 0
+        pee_cnt = 0
+        for i in range(len(colors)):
+            rgb = self.hsv2rgb(colors[i])
+            hsv = colors[i]
+            size = round(sizes[i] * 100, 3)
+            # print('hsv      :', hsv)
+            # print('rgb      :', rgb)
+            # print('size     :', size)
+            # plt.imshow(np.tile(rgb, (100, 100, 1)) / 255)
+            # plt.show()
 
-            if color[2] < 150:
-                if big_rgb is None or np.linalg.norm(big_rgb - white) < np.linalg.norm(rgb - white):
-                    big_rgb = rgb
-                    rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
-                    dict = self.make_restroom_dict(rgb, round(size * 100, 3))
-                    print('poo  :', dict)
-                    self.send_json(dict, 'poo')
+            if (rgb == black).all() or (rgb > white).all():
+                # print('a')
+                continue
+
+            if hsv[2] < 150:
+                # print('b')
+                poo_rgb += rgb
+                poo_hsv += hsv
+                poo_size += size
+                poo_cnt += 1
             else:
-                if small_rgb is None or np.linalg.norm(small_rgb - white) < np.linalg.norm(rgb - white):
-                    rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
-                    dict = self.make_restroom_dict(rgb, round(size * 100, 3))
-                    print('pee  :', dict)
-                    self.send_json(dict, 'pee')
+                # print('c')
+                pee_rgb += rgb
+                pee_hsv += hsv
+                pee_size += size
+                pee_cnt += 1
+
+        if poo_cnt != 0:
+            poo_rgb = (poo_rgb/poo_cnt).astype('uint8')
+            poo_hsv = (poo_hsv/poo_cnt).astype('uint8')
+            poo_rgb = '#' + str(hex(poo_rgb[0]))[2:] + str(hex(poo_rgb[1]))[2:] + str(hex(poo_rgb[2]))[2:]
+            poo_hsv = '#' + str(hex(poo_hsv[0]))[2:] + str(hex(poo_hsv[1]))[2:] + str(hex(poo_hsv[2]))[2:]
+            dict = self.make_restroom_dict(poo_rgb, poo_hsv, round(poo_size,3))
+            print('poo  :', dict)
+            self.send_json(dict, 'poo')
+
+        if pee_cnt != 0:
+            pee_rgb = (pee_rgb / pee_cnt).astype('uint8')
+            pee_hsv = (pee_hsv / pee_cnt).astype('uint8')
+            pee_rgb = '#' + str(hex(pee_rgb[0]))[2:] + str(hex(pee_rgb[1]))[2:] + str(hex(pee_rgb[2]))[2:]
+            pee_hsv = '#' + str(hex(pee_hsv[0]))[2:] + str(hex(pee_hsv[1]))[2:] + str(hex(pee_hsv[2]))[2:]
+            dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3))
+            print('pee  :', dict)
+            self.send_json(dict, 'pee')
 
     def restaurant(self, weight_list):
         weights = np.array(weight_list)
