@@ -223,7 +223,7 @@ class Parcing():
         return res
 
     def weight(self):
-        hx = HX711(20, 21)
+        hx = HX711(21, 20)
         hx.set_reading_format("MSB", "MSB")
         hx.set_reference_unit(1)
         hx.reset()
