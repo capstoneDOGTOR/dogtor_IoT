@@ -10,7 +10,6 @@ from io import BytesIO
 from PIL import Image
 import RPi.GPIO as GPIO
 from hx711 import HX711
-from emulated_hx711 import HX711
 
 class Camera():
     def __init__(self):
