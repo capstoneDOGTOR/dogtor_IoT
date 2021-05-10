@@ -94,7 +94,7 @@ class Parcing():
 
     def make_restaurant_dict(self, weight):
         dict = {
-            'weight': str(weight),
+            'amountOfMeal': str(weight)
         }
         return dict
 
@@ -223,7 +223,7 @@ class Parcing():
         return res
 
     def weight(self):
-        hx = HX711(21, 20)
+        hx = HX711(21, 20) #DAT CLK
         hx.set_reading_format("MSB", "MSB")
         hx.set_reference_unit(1)
         hx.reset()
@@ -235,6 +235,7 @@ class Parcing():
         # time.sleep(0.1)
         GPIO.cleanup()
 
-        dict = self.make_weight_dict(val)
-        print(dict)
-        self.send_json(dict, 'weight')
+        if val > 0:
+            dict = self.make_weight_dict(val)
+            print(dict)
+            self.send_json(dict, 'weight')
