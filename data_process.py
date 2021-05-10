@@ -189,7 +189,7 @@ class Parcing():
             poo_rgb = (poo_rgb/poo_cnt).astype('uint8')
             poo_hsv = (poo_hsv/poo_cnt).astype('uint8')
             poo_rgb = '#' + str(hex(poo_rgb[0]))[2:] + str(hex(poo_rgb[1]))[2:] + str(hex(poo_rgb[2]))[2:]
-            poo_hsv = '#' + str(hex(poo_hsv[0]))[2:] + str(hex(poo_hsv[1]))[2:] + str(hex(poo_hsv[2]))[2:]
+            poo_hsv = str(poo_hsv[0]) + '/' + str(poo_hsv[1]) + str(poo_hsv[2])
             dict = self.make_restroom_dict(poo_rgb, poo_hsv, round(poo_size,3))
             print('poo  :', dict)
             self.send_json(dict, 'poo')
@@ -198,7 +198,7 @@ class Parcing():
             pee_rgb = (pee_rgb / pee_cnt).astype('uint8')
             pee_hsv = (pee_hsv / pee_cnt).astype('uint8')
             pee_rgb = '#' + str(hex(pee_rgb[0]))[2:] + str(hex(pee_rgb[1]))[2:] + str(hex(pee_rgb[2]))[2:]
-            pee_hsv = '#' + str(hex(pee_hsv[0]))[2:] + str(hex(pee_hsv[1]))[2:] + str(hex(pee_hsv[2]))[2:]
+            pee_hsv = str(pee_hsv[0]) + '/' + str(pee_hsv[1]) + str(pee_hsv[2])
             dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3))
             print('pee  :', dict)
             self.send_json(dict, 'pee')
