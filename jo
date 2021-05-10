@@ -1,0 +1,212 @@
+[1mdiff --git a/__pycache__/data_process.cpython-37.pyc b/__pycache__/data_process.cpython-37.pyc[m
+[1mindex e4798ed..d8fd712 100644[m
+Binary files a/__pycache__/data_process.cpython-37.pyc and b/__pycache__/data_process.cpython-37.pyc differ
+[1mdiff --git a/emulated_hx711.py b/emulated_hx711.py[m
+[1mdeleted file mode 100644[m
+[1mindex 54b8f58..0000000[m
+[1m--- a/emulated_hx711.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,330 +0,0 @@[m
+[31m-import time[m
+[31m-import random[m
+[31m-import math[m
+[31m-import threading[m
+[31m-[m
+[31m-[m
+[31m-class HX711:[m
+[31m-    def __init__(self, dout, pd_sck, gain=128):[m
+[31m-        self.PD_SCK = pd_sck[m
+[31m-[m
+[31m-        self.DOUT = dout[m
+[31m-[m
+[31m-        # Last time we've been read.[m
+[31m-        self.lastReadTime = time.time()[m
+[31m-        self.sampleRateHz = 80.0[m
+[31m-        self.resetTimeStamp = time.time()[m
+[31m-        self.sampleCount = 0[m
+[31m-        self.simulateTare = False[m
+[31m-[m
+[31m-        # Mutex for reading from the HX711, in case multiple threads in client[m
+[31m-        # software try to access get values from the class at the same time.[m
+[31m-        self.readLock = threading.Lock()[m
+[31m-        [m
+[31m-        self.GAIN = 0[m
+[31m-        self.REFERENCE_UNIT = 1  # The value returned by the hx711 that corresponds to your reference unit AFTER dividing by the SCALE.[m
+[31m-        [m
+[31m-        self.OFFSET = 1[m
+[31m-        self.lastVal = long(0)[m
+[31m-[m
+[31m-        self.DEBUG_PRINTING = False[m
+[31m-        [m
+[31m-        self.byte_format = 'MSB'[m
+[31m-        self.bit_format = 'MSB'[m
+[31m-[m
+[31m-        self.set_gain(gain)[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-        # Think about whether this is necessary.[m
+[31m-        time.sleep(1)[m
+[31m-[m
+[31m-    def convertToTwosComplement24bit(self, inputValue):[m
+[31m-       # HX711 has saturating logic.[m
+[31m-       if inputValue >= 0x7fffff:[m
+[31m-          return 0x7fffff[m
+[31m-[m
+[31m-       # If it's a positive value, just return it, masked with our max value.[m
+[31m-       if inputValue >= 0:[m
+[31m-          return inputValue & 0x7fffff[m
+[31m-[m
+[31m-       if inputValue < 0:[m
+[31m-          # HX711 has saturating logic.[m
+[31m-          if inputValue < -0x800000:[m
+[31m-             inputValue = -0x800000[m
+[31m-[m
+[31m-          diff = inputValue + 0x800000[m
+[31m-[m
+[31m-          return 0x800000 + diff[m
+[31m-[m
+[31m-        [m
+[31m-    def convertFromTwosComplement24bit(self, inputValue):[m
+[31m-        return -(inputValue & 0x800000) + (inputValue & 0x7fffff)[m
+[31m-[m
+[31m-    [m
+[31m-    def is_ready(self):[m
+[31m-        # Calculate how long we should be waiting between samples, given the[m
+[31m-        # sample rate.[m
+[31m-        sampleDelaySeconds = 1.0 / self.sampleRateHz[m
+[31m-[m
+[31m-        return time.time() >= self.lastReadTime + sampleDelaySeconds[m
+[31m-[m
+[31m-    [m
+[31m-    def set_gain(self, gain):[m
+[31m-        if gain is 128:[m
+[31m-            self.GAIN = 1[m
+[31m-        elif gain is 64:[m
+[31m-            self.GAIN = 3[m
+[31m-        elif gain is 32:[m
+[31m-            self.GAIN = 2[m
+[31m-[m
+[31m-        # Read out a set of raw bytes and throw it away.[m
+[31m-        self.readRawBytes()[m
+[31m-[m
+[31m-        [m
+[31m-    def get_gain(self):[m
+[31m-        if self.GAIN == 1:[m
+[31m-            return 128[m
+[31m-        if self.GAIN == 3:[m
+[31m-            return 64[m
+[31m-        if self.GAIN == 2:[m
+[31m-            return 32[m
+[31m-[m
+[31m-        # Shouldn't get here.[m
+[31m-        return 0[m
+[31m-        [m
+[31m-[m
+[31m-    def readRawBytes(self):[m
+[31m-        # Wait for and get the Read Lock, incase another thread is already[m
+[31m-        # driving the virtual HX711 serial interface.[m
+[31m-        self.readLock.acquire()[m
+[31m-[m
+[31m-        # Wait until HX711 is ready for us to read a sample.[m
+[31m-        while not self.is_ready():[m
+[31m-           pass[m
+[31m-[m
+[31m-        self.lastReadTime = time.time()[m
+[31m-[m
+[31m-        # Generate a 24bit 2s complement sample for the virtual HX711.[m
+[31m-        rawSample = self.convertToTwosComplement24bit(self.generateFakeSample())[m
+[31m-        [m
+[31m-        # Read three bytes of data from the HX711.[m
+[31m-        firstByte  = (rawSample >> 16) & 0xFF[m
+[31m-        secondByte = (rawSample >> 8)  & 0xFF[m
+[31m-        thirdByte  = rawSample & 0xFF[m
+[31m-[m
+[31m-        # Release the Read Lock, now that we've finished driving the virtual HX711[m
+[31m-        # serial interface.[m
+[31m-        self.readLock.release()           [m
+[31m-[m
+[31m-        # Depending on how we're configured, return an orderd list of raw byte[m
+[31m-        # values.[m
+[31m-        if self.byte_format == 'LSB':[m
+[31m-           return [thirdByte, secondByte, firstByte][m
+[31m-        else:[m
+[31m-           return [firstByte, secondByte, thirdByte][m
+[31m-[m
+[31m-[m
+[31m-    def read_long(self):[m
+[31m-        # Get a sample from the HX711 in the form of raw bytes.[m
+[31m-        dataBytes = self.readRawBytes()[m
+[31m-[m
+[31m-[m
+[31m-        if self.DEBUG_PRINTING:[m
+[31m-            print(dataBytes,)[m
+[31m-        [m
+[31m-        # Join the raw bytes into a single 24bit 2s complement value.[m
+[31m-        twosComplementValue = ((dataBytes[0] << 16) |[m
+[31m-                               (dataBytes[1] << 8)  |[m
+[31m-                               dataBytes[2])[m
+[31m-[m
+[31m-        if self.DEBUG_PRINTING:[m
+[31m-            print("Twos: 0x%06x" % twosComplementValue)[m
+[31m-        [m
+[31m-        # Convert from 24bit twos-complement to a signed value.[m
+[31m-        signedIntValue = self.convertFromTwosComplement24bit(twosComplementValue)[m
+[31m-[m
+[31m-        # Record the latest sample value we've read.[m
+[31m-        self.lastVal = signedIntValue[m
+[31m-[m
+[31m-        # Return the sample value we've read from the HX711.[m
+[31m-        return int(signedIntValue)[m
+[31m-[m
+[31m-    [m
+[31m-    def read_average(self, times=3):[m
+[31m-        # Make sure we've been asked to take a rational amount of samples.[m
+[31m-        if times <= 0:[m
+[31m-            print("HX711().read_average(): times must >= 1!!  Assuming value of 1.")[m
+[31m-            times = 1[m
+[31m-[m
+[31m-        # If we're only average across one value, just read it and return it.[m
+[31m-        if times == 1:[m
+[31m-            return self.read_long()[m
+[31m-[m
+[31m-        # If we're averaging across a low amount of values, just take an[m
+[31m-        # arithmetic mean.[m
+[31m-        if times < 5:[m
+[31m-            values = int(0)[m
+[31m-            for i in range(times):[m
+[31m-                values += self.read_long()[m
+[31m-[m
+[31m-            return values / times[m
+[31m-[m
+[31m-        # If we're taking a lot of samples, we'll collect them in a list, remove[m
+[31m-        # the outliers, then take the mean of the remaining set.[m
+[31m-        valueList = [][m
+[31m-[m
+[31m-        for x in range(times):[m
+[31m-            valueList += [self.read_long()][m
+[31m-[m
+[31m-        valueList.sort()[m
+[31m-[m
+[31m-        # We'll be trimming 20% of outlier samples from top and bottom of collected set.[m
+[31m-        trimAmount = int(len(valueList) * 0.2)[m
+[31m-[m
+[31m-        # Trim the edge case values.[m
+[31m-        valueList = valueList[trimAmount:-trimAmount][m
+[31m-[m
+[31m-        # Return the mean of remaining samples.[m
+[31m-        return sum(valueList) / len(valueList)[m
+[31m-[m
+[31m-    [m
+[31m-    def get_value(self, times=3):[m
+[31m-        return self.read_average(times) - self.OFFSET[m
+[31m-[m
+[31m-    [m
+[31m-    def get_weight(self, times=3):[m
+[31m-        value = self.get_value(times)[m
+[31m-        value = value / self.REFERENCE_UNIT[m
+[31m-        return value[m
+[31m-[m
+[31m-    [m
+[31m-    def tare(self, times=15)
