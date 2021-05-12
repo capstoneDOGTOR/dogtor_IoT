@@ -11,6 +11,45 @@ from PIL import Image
 import RPi.GPIO as GPIO
 from hx711 import HX711
 
+
+def send_json(self, data, where):
+    URL = 'http://13.209.18.94:3000/' + where
+
+    res = requests.post(URL, json=data, headers={'Authorization': self.uid})
+    # print('POST    :', res.status_code)
+    # print(res.text)
+    return res
+
+
+class Weight():
+    def __init__(self):
+        self.hx = HX711(21, 20) #DAT CLK
+        self.hx.set_reading_format("MSB", "MSB")
+        self.hx.set_reference_unit(1)
+
+    def weight(self):
+        self.hx.reset()
+        self.hx.tare()
+
+        val = self.hx.get_weight(5)
+        # hx.power_down()
+        # hx.power_up()
+        # time.sleep(0.1)
+        GPIO.cleanup()
+
+        if val > 0:
+            dict = self.make_weight_dict(val)
+            print(dict)
+            send_json(dict, 'weight')
+
+        return val
+
+    def make_weight_dict(self, weight):
+        dict = {
+            'weight': str(round(weight, 0)),
+        }
+        return dict
+
 class Camera():
     def __init__(self):
         self.camera = PiCamera()
@@ -98,17 +137,12 @@ class Parcing():
         }
         return dict
 
-    def make_restroom_dict(self, rgb, hsv, size):
+    def make_restroom_dict(self, rgb, hsv, size, color):
         dict = {
             'RGB': str(rgb),
             'HSV': str(hsv),
-            'size': str(size)  # 소수점 세번째까지
-        }
-        return dict
-
-    def make_weight_dict(self, weight):
-        dict = {
-            'weight': str(round(weight, 0)),
+            'size': str(size),  # 소수점 세번째까지
+            'color': color
         }
         return dict
 
@@ -188,20 +222,24 @@ class Parcing():
         if poo_cnt != 0:
             poo_rgb = (poo_rgb/poo_cnt).astype('uint8')
             poo_hsv = (poo_hsv/poo_cnt).astype('uint8')
+            poo_color = self.hsv2color(poo_hsv)
+
             poo_rgb = '#' + str(hex(poo_rgb[0]))[2:] + str(hex(poo_rgb[1]))[2:] + str(hex(poo_rgb[2]))[2:]
             poo_hsv = str(poo_hsv[0]) + '/' + str(poo_hsv[1]) + str(poo_hsv[2])
-            dict = self.make_restroom_dict(poo_rgb, poo_hsv, round(poo_size,3))
+            dict = self.make_restroom_dict(poo_rgb, poo_hsv, round(poo_size,3), poo_color)
             print('poo  :', dict)
-            self.send_json(dict, 'poo')
+            send_json(dict, 'poo')
 
         if pee_cnt != 0:
             pee_rgb = (pee_rgb / pee_cnt).astype('uint8')
             pee_hsv = (pee_hsv / pee_cnt).astype('uint8')
+            pee_color = self.hsv2color(pee_hsv)
+
             pee_rgb = '#' + str(hex(pee_rgb[0]))[2:] + str(hex(pee_rgb[1]))[2:] + str(hex(pee_rgb[2]))[2:]
             pee_hsv = str(pee_hsv[0]) + '/' + str(pee_hsv[1]) + str(pee_hsv[2])
-            dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3))
+            dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3), pee_color)
             print('pee  :', dict)
-            self.send_json(dict, 'pee')
+            send_json(dict, 'pee')
 
     def restaurant(self, weight_list):
         weights = np.array(weight_list)
@@ -212,30 +250,31 @@ class Parcing():
         result = weights[np.where(weights <= outlier_max)]
         dict = self.make_restaurant_dict(result.max() - result.min())
         print(dict)
-        self.send_json(dict, 'intake')
+        send_json(dict, 'intake')
 
-    def send_json(self, data, where):
-        URL = 'http://13.209.18.94:3000/' + where
+    def hsv2color(self, hsv):
+        h = hsv[0] * 2
+        s = int(hsv[1] / 255)
+        v = int(hsv[2] / 255)
 
-        res = requests.post(URL, json=data, headers = {'Authorization':self.uid})
-        #print('POST    :', res.status_code)
-        #print(res.text)
-        return res
+        if v < 15:
+            if s < 10:
+                return 'gray'
+            return 'black'
 
-    def weight(self):
-        hx = HX711(21, 20) #DAT CLK
-        hx.set_reading_format("MSB", "MSB")
-        hx.set_reference_unit(1)
-        hx.reset()
-        hx.tare()
-
-        val = hx.get_weight(5)
-        # hx.power_down()
-        # hx.power_up()
-        # time.sleep(0.1)
-        GPIO.cleanup()
-
-        if val > 0:
-            dict = self.make_weight_dict(val)
-            print(dict)
-            self.send_json(dict, 'weight')
+        if (h >= 0 and h < 20) or (h >= 340):
+            if s >= 20 and s < 70:
+                return 'pink'
+            else:
+                return 'red'
+        elif h >= 20 and h < 40:
+            if s + v > 150:
+                return 'orange'
+            else:
+                return 'brown'
+        elif h >= 40 and h < 70:
+            return 'yellow'
+        elif h >= 70 and h < 170:
+            return 'green'
+        elif h >= 170 and h < 340:
+            return 'purple'
