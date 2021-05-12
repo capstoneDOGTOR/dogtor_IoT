@@ -94,6 +94,7 @@ class Parcing():
         labels = np.reshape(labels, img.shape[:2])
         # plt.imshow(labels)
         # plt.show()
+        cv2.imwrite('./sample3.jpg', labels)
 
         # size, color
         numlabels = np.arange(0, len(np.unique(labels)) + 1)
