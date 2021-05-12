@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import statistics
 
@@ -80,7 +80,8 @@ class Parcing():
         # plt.show()
 
         # ROI, preprocessing
-        vertices = np.array([[(0,417), (53,348), (539,299), (640,371), (640,480), (0,480)]], dtype=np.int32) #수정
+        vertices = np.array([[(0, 420), (60, 355), (536, 330), (640, 390), (640, 480), (0, 480)]], dtype=np.int32)  # 수정
+
         roi_img = self.region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
         cv2.imwrite('./sample2.jpg', roi_img)
         img = self.find_pad(roi_img)
@@ -94,7 +95,7 @@ class Parcing():
         labels = np.reshape(labels, img.shape[:2])
         # plt.imshow(labels)
         # plt.show()
-        cv2.imwrite('./sample3.jpg', labels)
+        # cv2.imwrite('./sample3.jpg', labels)
 
         # size, color
         numlabels = np.arange(0, len(np.unique(labels)) + 1)
