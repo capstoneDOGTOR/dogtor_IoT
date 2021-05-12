@@ -71,9 +71,6 @@ class Parcing():
         return roi_image
 
     def restroom(self, img, weight):
-        if weight < 0:
-            return
-
         # brightness
         # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # plt.show()

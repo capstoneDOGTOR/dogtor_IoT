@@ -14,14 +14,14 @@ parcing = Parcing(uid)
 # 2.1 무게 측정
 print('2.1')
 val = 0
-while True:
-    val = weight.weight()
-    print(val)
-    if val > 0:
-        break
+# while True:
+#     val = weight.weight()
+#     print(val)
+#     if val > 0:
+#         break
 
 # 2.2 카메라 촬영
-print('2.2')
+# print('2.2')
 img = camera.capture()
 # img = cv2.imread('img.JPG')
 # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
