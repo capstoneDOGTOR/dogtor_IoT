@@ -74,8 +74,8 @@ class Parcing():
         # brightness
         # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # plt.show()
-        bright = 220 - np.mean(img)
-        img = np.clip(img + bright, 0, 255).astype(np.uint8)
+        # bright = 220 - np.mean(img)
+        # img = np.clip(img + bright, 0, 255).astype(np.uint8)
         # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # plt.show()
 
