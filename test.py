@@ -1,10 +1,10 @@
 from data_process import *
+from iot import *
 
 uid = '123'
 camera = Camera()
 weight = Weight()
 parcing = Parcing(uid)
-
 # img = camera.capture()
 # img = cv2.imread('img.JPG')
 # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)

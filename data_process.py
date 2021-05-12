@@ -2,69 +2,14 @@ import numpy as np
 import cv2
 #import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-import time
 import statistics
-import requests
-from picamera import PiCamera
-from io import BytesIO
-from PIL import Image
-import RPi.GPIO as GPIO
-from hx711 import HX711
 
-
-class Weight():
-    def __init__(self):
-        self.hx = HX711(21, 20) #DAT CLK
-        self.hx.set_reading_format("MSB", "MSB")
-        self.hx.set_reference_unit(1)
-
-    def weight(self):
-        self.hx.reset()
-        self.hx.tare()
-
-        val = self.hx.get_weight(5)
-        # hx.power_down()
-        # hx.power_up()
-        # time.sleep(0.1)
-        GPIO.cleanup()
-
-        return val
-
-    def make_weight_dict(self, weight):
-        dict = {
-            'weight': str(round(weight, 0)),
-        }
-        return dict
-
-class Camera():
-    def __init__(self):
-        self.camera = PiCamera()
-        self.camera.resolution = (640, 480)
-
-    def capture(self):
-        self.camera.start_preview()
-        stream = BytesIO()
-        time.sleep(2)
-
-        self.camera.capture(stream, 'jpeg')
-        img = Image.open(stream)
-        img = np.array(img)
-
-        return img
+from send import *
 
 class Parcing():
     def __init__(self, uid):
         self.cluster = 5
-        self.uid = uid
-
-    def send_json(self, data, where):
-        URL = 'http://13.209.18.94:3000/' + where
-
-        res = requests.post(URL, json=data, headers={'Authorization': self.uid})
-        # print('POST    :', res.status_code)
-        # print(res.text)
-        return res
-
+        self.send = send(uid)
     def hsv2rgb(self, hsv):
         h = hsv[0] * 2
         s = hsv[1] / 255
@@ -111,7 +56,6 @@ class Parcing():
         return mark
 
     def region_of_interest(self, img, vertices):
-
         mask = np.zeros_like(img)
         color = (255, 255, 255)
 
@@ -125,23 +69,7 @@ class Parcing():
 
         return roi_image
 
-    def make_restaurant_dict(self, weight):
-        dict = {
-            'amountOfMeal': str(weight)
-        }
-        return dict
-
-    def make_restroom_dict(self, rgb, hsv, size, color):
-        dict = {
-            'RGB': str(rgb),
-            'HSV': str(hsv),
-            'size': str(size),  # 소수점 세번째까지
-            'color': color
-        }
-        return dict
-
     def restroom(self, img, weight):
-
         if weight < 0:
             return
 
@@ -155,7 +83,7 @@ class Parcing():
 
         # ROI, preprocessing
         height, width = img.shape[:2]
-        vertices = np.array([[(width/5, 0), (width/5*4, 0), (width/5*4, height), (width/5, height)]], dtype=np.int32)
+        vertices = np.array([[(width/5, 0), (width/5*4, 0), (width/5*4, height), (width/5, height)]], dtype=np.int32) #수정
         roi_img = self.region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
         img = self.find_pad(roi_img)
 
@@ -220,7 +148,7 @@ class Parcing():
         if poo_cnt + pee_cnt != 0:
             dict = self.make_weight_dict(weight)
             print(dict)
-            self.send_json(dict, 'weight')
+            self.send.send_json(dict, 'weight')
 
         if poo_cnt != 0:
             poo_rgb = (poo_rgb/poo_cnt).astype('uint8')
@@ -231,7 +159,7 @@ class Parcing():
             poo_hsv = str(poo_hsv[0]) + '/' + str(poo_hsv[1]) + str(poo_hsv[2])
             dict = self.make_restroom_dict(poo_rgb, poo_hsv, round(poo_size,3), poo_color)
             print('poo  :', dict)
-            self.send_json(dict, 'poo')
+            self.send.send_json(dict, 'poo')
 
         if pee_cnt != 0:
             pee_rgb = (pee_rgb / pee_cnt).astype('uint8')
@@ -242,9 +170,7 @@ class Parcing():
             pee_hsv = str(pee_hsv[0]) + '/' + str(pee_hsv[1]) + str(pee_hsv[2])
             dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3), pee_color)
             print('pee  :', dict)
-            self.send_json(dict, 'pee')
-
-
+            self.send.send_json(dict, 'pee')
 
     def restaurant(self, weight_list):
         weights = np.array(weight_list)
@@ -255,7 +181,7 @@ class Parcing():
         result = weights[np.where(weights <= outlier_max)]
         dict = self.make_restaurant_dict(result.max() - result.min())
         print(dict)
-        self.send_json(dict, 'intake')
+        self.send.send_json(dict, 'intake')
 
     def hsv2color(self, hsv):
         h = hsv[0] * 2
@@ -283,3 +209,25 @@ class Parcing():
             return 'green'
         elif h >= 170 and h < 340:
             return 'purple'
+
+
+    def make_weight_dict(self, weight):
+        dict = {
+            'weight': str(round(weight, 0)),
+        }
+        return dict
+
+    def make_restaurant_dict(self, weight):
+        dict = {
+            'amountOfMeal': str(weight)
+        }
+        return dict
+
+    def make_restroom_dict(self, rgb, hsv, size, color):
+        dict = {
+            'RGB': str(rgb),
+            'HSV': str(hsv),
+            'size': str(size),  # 소수점 세번째까지
+            'color': color
+        }
+        return dict
