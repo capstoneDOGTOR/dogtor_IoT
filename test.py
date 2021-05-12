@@ -12,8 +12,8 @@ parcing = Parcing(uid)
 
 ###################### 2. raspberry ################################
 # 2.1 무게 측정
+print('2.1')
 val = 0
-print('weight')
 while True:
     val = weight.weight()
     print(val)
@@ -21,12 +21,14 @@ while True:
         break
 
 # 2.2 카메라 촬영
+print('2.2')
 img = camera.capture()
-img = cv2.imread('img.JPG')
-img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-cv2.imwrite('./1.jpg', img)
+# img = cv2.imread('img.JPG')
+# img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+cv2.imwrite('./sample1.jpg', img)
 
 # 2.3 parcing
+print('2.3')
 parcing.restroom(img, val)
 
 ###################### 3. arduino ################################
