@@ -80,7 +80,7 @@ class Parcing():
         # plt.show()
 
         # ROI, preprocessing
-        vertices = np.array([[(0, 420), (60, 355), (536, 330), (640, 390), (640, 480), (0, 480)]], dtype=np.int32)  # 수정
+        vertices = np.array([[(0, 360), (60, 312), (529, 292), (640, 364), (640, 480), (0, 480)]], dtype=np.int32)  # 수정
 
         roi_img = self.region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
         cv2.imwrite('./sample2.jpg', roi_img)
