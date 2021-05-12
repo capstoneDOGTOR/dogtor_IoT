@@ -82,6 +82,7 @@ class Parcing():
         # ROI, preprocessing
         vertices = np.array([[(0,417), (53,348), (539,299), (640,371), (640,480), (0,480)]], dtype=np.int32) #수정
         roi_img = self.region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
+        cv2.imwrite('./sample2.jpg', cv2.cvtColor(roi_img, cv2.COLOR_BGR2RGB))
         img = self.find_pad(roi_img)
 
         # segmentation

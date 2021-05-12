@@ -24,8 +24,8 @@ val = 0
 # print('2.2')
 img = camera.capture()
 # img = cv2.imread('img.JPG')
-# img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-cv2.imwrite('./sample1.jpg', img)
+img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+cv2.imwrite('./sample1.jpg', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
 # 2.3 parcing
 print('2.3')
