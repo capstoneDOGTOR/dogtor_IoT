@@ -10,6 +10,7 @@ class Parcing():
     def __init__(self, uid):
         self.cluster = 5
         self.send = send(uid)
+
     def hsv2rgb(self, hsv):
         h = hsv[0] * 2
         s = hsv[1] / 255
@@ -209,7 +210,6 @@ class Parcing():
             return 'green'
         elif h >= 170 and h < 340:
             return 'purple'
-
 
     def make_weight_dict(self, weight):
         dict = {
