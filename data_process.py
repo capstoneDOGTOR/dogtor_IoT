@@ -12,15 +12,6 @@ import RPi.GPIO as GPIO
 from hx711 import HX711
 
 
-def send_json(self, data, where):
-    URL = 'http://13.209.18.94:3000/' + where
-
-    res = requests.post(URL, json=data, headers={'Authorization': self.uid})
-    # print('POST    :', res.status_code)
-    # print(res.text)
-    return res
-
-
 class Weight():
     def __init__(self):
         self.hx = HX711(21, 20) #DAT CLK
@@ -65,6 +56,14 @@ class Parcing():
     def __init__(self, uid):
         self.cluster = 5
         self.uid = uid
+
+    def send_json(self, data, where):
+        URL = 'http://13.209.18.94:3000/' + where
+
+        res = requests.post(URL, json=data, headers={'Authorization': self.uid})
+        # print('POST    :', res.status_code)
+        # print(res.text)
+        return res
 
     def hsv2rgb(self, hsv):
         h = hsv[0] * 2
@@ -221,7 +220,7 @@ class Parcing():
         if poo_cnt + pee_cnt != 0:
             dict = self.make_weight_dict(weight)
             print(dict)
-            send_json(dict, 'weight')
+            self.send_json(dict, 'weight')
 
         if poo_cnt != 0:
             poo_rgb = (poo_rgb/poo_cnt).astype('uint8')
@@ -232,7 +231,7 @@ class Parcing():
             poo_hsv = str(poo_hsv[0]) + '/' + str(poo_hsv[1]) + str(poo_hsv[2])
             dict = self.make_restroom_dict(poo_rgb, poo_hsv, round(poo_size,3), poo_color)
             print('poo  :', dict)
-            send_json(dict, 'poo')
+            self.send_json(dict, 'poo')
 
         if pee_cnt != 0:
             pee_rgb = (pee_rgb / pee_cnt).astype('uint8')
@@ -243,7 +242,7 @@ class Parcing():
             pee_hsv = str(pee_hsv[0]) + '/' + str(pee_hsv[1]) + str(pee_hsv[2])
             dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3), pee_color)
             print('pee  :', dict)
-            send_json(dict, 'pee')
+            self.send_json(dict, 'pee')
 
 
 
@@ -256,7 +255,7 @@ class Parcing():
         result = weights[np.where(weights <= outlier_max)]
         dict = self.make_restaurant_dict(result.max() - result.min())
         print(dict)
-        send_json(dict, 'intake')
+        self.send_json(dict, 'intake')
 
     def hsv2color(self, hsv):
         h = hsv[0] * 2
