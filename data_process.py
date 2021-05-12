@@ -80,8 +80,7 @@ class Parcing():
         # plt.show()
 
         # ROI, preprocessing
-        height, width = img.shape[:2]
-        vertices = np.array([[(width/5, 0), (width/5*4, 0), (width/5*4, height), (width/5, height)]], dtype=np.int32) #수정
+        vertices = np.array([[(0,417), (53,348), (539,299), (640,371), (640,480), (0,480)]], dtype=np.int32) #수정
         roi_img = self.region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
         img = self.find_pad(roi_img)
 
