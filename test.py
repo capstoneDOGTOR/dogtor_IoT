@@ -12,24 +12,24 @@ parcing = Parcing(uid)
 
 ###################### 2. raspberry ################################
 # 2.1 무게 측정
-# val = 0
-# while True :
-#     val = weight.weight()
-#     if val > 0:
-#         break
+val = 0
+while True :
+    val = weight.weight()
+    if val > 0:
+        break
 
 # 2.2 카메라 촬영
-# img = camera.capture()
-# img = cv2.imread('img.JPG')
-# img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-# cv2.imwrite('./1.jpg', img)
+img = camera.capture()
+img = cv2.imread('img.JPG')
+img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+cv2.imwrite('./1.jpg', img)
 
 # 2.3 parcing
-# parcing.restroom(img, val)
+parcing.restroom(img, val)
 
 ###################### 3. arduino ################################
 # 3.1 블루투스로 weight_list 받기
-# weight_list = [150,150,150,140,140,140,130,130,130,120,120,120,100,100,100,70,70,70,40,40,40]
+weight_list = [150,150,150,140,140,140,130,130,130,120,120,120,100,100,100,70,70,70,40,40,40]
 
 # 3.2 parcing
-# parcing.restaurant(weight_list)
+parcing.restaurant(weight_list)
