@@ -10,10 +10,10 @@ from hx711 import HX711
 class Weight():
     def __init__(self):
         self.hx = HX711(21, 20) #DAT CLK
-        self.hx.set_reading_format("MSB", "MSB")
-        self.hx.set_reference_unit(1)
 
     def weight(self):
+        self.hx.set_reading_format("MSB", "MSB")
+        self.hx.set_reference_unit(1)
         self.hx.reset()
         self.hx.tare()
 
