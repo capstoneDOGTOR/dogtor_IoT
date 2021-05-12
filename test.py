@@ -13,8 +13,9 @@ parcing = Parcing(uid)
 ###################### 2. raspberry ################################
 # 2.1 무게 측정
 val = 0
-while True :
+while True:
     val = weight.weight()
+    print(val)
     if val > 0:
         break
 
