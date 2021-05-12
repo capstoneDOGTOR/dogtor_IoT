@@ -10,9 +10,9 @@ parcing = Parcing(uid)
 # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 # cv2.imwrite('./1.jpg',img)
 
-# parcing.restroom(img)
+# val = weight.weight()
 
-val = weight.weight()
+# parcing.restroom(img, val)
 
 # weight_list = [150,150,150,140,140,140,130,130,130,120,120,120,100,100,100,70,70,70,40,40,40]
 # parcing.restaurant(weight_list)

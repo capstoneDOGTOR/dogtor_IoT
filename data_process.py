@@ -37,11 +37,6 @@ class Weight():
         # time.sleep(0.1)
         GPIO.cleanup()
 
-        if val > 0:
-            dict = self.make_weight_dict(val)
-            print(dict)
-            send_json(dict, 'weight')
-
         return val
 
     def make_weight_dict(self, weight):
@@ -146,7 +141,11 @@ class Parcing():
         }
         return dict
 
-    def restroom(self, img):
+    def restroom(self, img, weight):
+
+        if weight < 0:
+            return
+
         # brightness
         # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # plt.show()
@@ -219,6 +218,11 @@ class Parcing():
                 pee_size += size
                 pee_cnt += 1
 
+        if poo_cnt + pee_cnt != 0:
+            dict = self.make_weight_dict(weight)
+            print(dict)
+            send_json(dict, 'weight')
+
         if poo_cnt != 0:
             poo_rgb = (poo_rgb/poo_cnt).astype('uint8')
             poo_hsv = (poo_hsv/poo_cnt).astype('uint8')
@@ -240,6 +244,8 @@ class Parcing():
             dict = self.make_restroom_dict(pee_rgb, pee_hsv, round(pee_size,3), pee_color)
             print('pee  :', dict)
             send_json(dict, 'pee')
+
+
 
     def restaurant(self, weight_list):
         weights = np.array(weight_list)
