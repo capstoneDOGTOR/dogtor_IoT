@@ -19,25 +19,25 @@ class Parcing():
         if poo['size'] != 0:
             rgb = poo['rgb'].astype('uint8')
             hsv = poo['hsv'].astype('uint8')
-            size = round(poo['size'], 3)
+            size = round(poo['size'], 3) * 100
             color = hsv2color(hsv)
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/'+ str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, round(size,3), color)
+            dict = self.make_restroom_dict(rgb, hsv, size, color)
             print('poo  :', dict)
             self.send.send_json(dict, 'poo')
 
         if pee['size'] != 0:
             rgb = pee['rgb'].astype('uint8')
             hsv = pee['hsv'].astype('uint8')
-            size = round(pee['size'], 3)
+            size = round(pee['size'], 3) * 100
             color = hsv2color(hsv)
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/' + str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, round(size, 3), color)
+            dict = self.make_restroom_dict(rgb, hsv, size, color)
             print('pee  :', dict)
             self.send.send_json(dict, 'pee')
 
