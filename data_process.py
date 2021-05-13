@@ -19,7 +19,7 @@ class Parcing():
         if poo['size'] != 0:
             rgb = poo['rgb'].astype('uint8')
             hsv = poo['hsv'].astype('uint8')
-            size = round(poo['size'], 3) * 100
+            size = round(poo['size']* 100, 3)
             color = hsv2color(hsv)
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/'+ str(hsv[2])
@@ -31,7 +31,7 @@ class Parcing():
         if pee['size'] != 0:
             rgb = pee['rgb'].astype('uint8')
             hsv = pee['hsv'].astype('uint8')
-            size = round(pee['size'], 3) * 100
+            size = round(pee['size']* 100, 3)
             color = hsv2color(hsv)
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
