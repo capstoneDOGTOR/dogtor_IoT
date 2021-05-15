@@ -14,7 +14,7 @@ class Weight():
 
     def weight(self):
         self.hx.set_reading_format("MSB", "MSB")
-        self.hx.set_reference_unit(40000)
+        self.hx.set_reference_unit(4000)
         self.hx.reset()
         self.hx.tare()
 
@@ -25,7 +25,7 @@ class Weight():
         weight_list = []
         flag = 1
         while True:
-            val = int(round(self.hx.get_weight(5) * -1, 1))
+            val = int(self.hx.get_weight(5) * -1)
             print(val)
 
             if val > 0:
