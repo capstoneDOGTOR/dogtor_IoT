@@ -2,7 +2,8 @@ from bluepy.btle import *
 import threading    
 import bluepy.btle
 from data_process import *
-
+import bluetooth
+from bluetooth import *
 
 def setWifi():
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -19,11 +20,8 @@ def setWifi():
 
     port = server_sock.getsockname()[1]
 
-    # # 블루투스 서비스를 Advertise
-    # advertise_service( server_sock, "setWifi",
-    #         service_id = uuid,
-    #         service_classes = [ uuid, SERIAL_PORT_CLASS ],
-    #         profiles = [ SERIAL_PORT_PROFILE ] )
+     # 블루투스 서비스를 Advertise
+    advertise_service( server_sock, "setWifi",service_id = uuid, service_classes = [ uuid, SERIAL_PORT_CLASS ], profiles = [ SERIAL_PORT_PROFILE ] )
     
     print("Waiting for connection : channel %d" % port)
     # 클라이언트가 연결될 때까지 대기
@@ -35,7 +33,11 @@ def setWifi():
             # 들어온 데이터를 역순으로 뒤집어 전달
             data = client_sock.recv(1024)
             if len(data) == 0: break
+            print(type(data))
+            # data = data.decode()
             if "from_app" in data:
+                print(type(data)
+               # data = data.decode()
                 array  =  data.split('/')
                 uid = array[1]
                 wifi_name = array[2]
@@ -86,7 +88,7 @@ class MyDelegate(DefaultDelegate):
         self.time = time.time()
         self.currentTime = 0
         self.weightList = []
-        self.parce = Parcing()
+        self.parce = Parcing("ddd")
         self.cam = Camera()
      #func is called on notifications
     def handleNotification(self, cHandle, data):     
