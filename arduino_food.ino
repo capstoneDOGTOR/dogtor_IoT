@@ -43,6 +43,8 @@ void loop() {
     while (1) {
       if (now_time - start_time == 600000) {
         flag = 1;
+        Serial.println("end");
+        mySerial.print("end");
         break;
     }
       else {
@@ -50,7 +52,7 @@ void loop() {
         Serial.println(weight);
         mySerial.print(weight);
       }
-    delay(10000);
+    delay(1000);
     }
   }
 
