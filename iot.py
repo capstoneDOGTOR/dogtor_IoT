@@ -27,7 +27,7 @@ class Weight():
         # hx.power_up()
         # time.sleep(0.1)
         val = 0
-        while val == 0:
+        while val < 20:
             val = self.get()
             time.sleep(10)
 
