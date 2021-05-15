@@ -221,7 +221,7 @@ def main():
         delegate = MyDelegate(peripheral)
         peripheral.setDelegate(delegate)
         print("Find Device")
-      u  threads.append(threading.Thread(target = rcv_data, args =  (peripheral,delegate ))) #receive data from Arduino
+        threads.append(threading.Thread(target = rcv_data, args =  (peripheral,delegate ))) #receive data from Arduino
         threads.append(threading.Thread(target = capture, args = id))                        #capture 
         for iter in range(len(threads)) :   
             threads[iter].start()
