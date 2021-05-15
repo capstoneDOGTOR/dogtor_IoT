@@ -102,12 +102,13 @@ def hsv2rgb(hsv):
 
     return np.array([r * 255, g * 255, b * 255]).astype('uint8')
 
-def hsv2color(hsv): # 색 판별
+def hsv2color(hsv,rgb): # 색 판별
     h = hsv[0] * 2
     s = int(hsv[1] / 255 * 100)
     v = int(hsv[2] / 255 * 100)
 
-    if s < 15:
+    black = np.array([30, 30, 30])
+    if (rgb == black).all():
         if v > 30:
             return 'gray'
         return 'black'

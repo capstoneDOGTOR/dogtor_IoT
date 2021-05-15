@@ -20,7 +20,7 @@ class Parcing():
             rgb = poo['rgb'].astype('uint8')
             hsv = poo['hsv'].astype('uint8')
             size = round(poo['size']* 100, 3)
-            color = hsv2color(hsv)
+            color = hsv2color(hsv, rgb)
             if color == 'brown':
                 flag = True
             else:
