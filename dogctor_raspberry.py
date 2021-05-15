@@ -6,6 +6,8 @@ import bluetooth
 from bluetooth import *
 import subprocess
 import os
+from iot import *
+from send import *
 
 def setWifi():
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -62,7 +64,8 @@ def setWifi():
                 ps = subprocess.Popen(['iwconfig'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 try:
                     output = subprocess.check_output(('grep', 'ESSID'), stdin=ps.stdout)
-                    print(output)
+                    output = output.decode()
+                    print(type(output))
                     if "ESSID:\""+wifi_name+"\"" in output  :
                         return
                     else:
@@ -70,11 +73,6 @@ def setWifi():
                 except subprocess.CalledProcessError:
                     # grep did not match any lines
                     print("No wireless networks connected")
-
-               
-
-                
-       
         except IOError:
             print("disconnected")
             client_sock.close()
@@ -97,14 +95,17 @@ def findDevice () :
     target_address = None     # target device address
     scanner = Scanner()
     devices = scanner.scan(3.0)
-    for dev in devices:    
-        for (_, _, value) in dev.getScanData():
-            if target_name in value: 
-                target_address = dev.addr
-                # create peripheral class
-                peripheral = Peripheral(target_address, "public")
-                return peripheral
-    return 
+    try : 
+        for dev in devices:    
+            for (_, _, value) in dev.getScanData():
+                if target_name in value: 
+                    target_address = dev.addr
+                    # create peripheral class
+                    peripheral = Peripheral(target_address, "public")
+                    return peripheral
+        return
+    except bluepy.btle.BTLEDisconnectError :
+        print ("Arduino disconnect")
 
 class MyDelegate(DefaultDelegate):            
     #Constructor (run once on startup)
@@ -113,21 +114,24 @@ class MyDelegate(DefaultDelegate):
         self.time = time.time()
         self.currentTime = 0
         self.weightList = []
-        self.parcing = Parcing(uid)
-        self.cam = Camera()
+        subUid = uid
+        self.parcing = Parcing(subUid)
         
      #func is called on notifications
 
     def handleNotification(self, cHandle, data):     
         print("Get Data :" ,data.decode('utf-8'), "g")
-        self.currentTime = time.time()
+        data = data.decode()
         if data.startswith("max"):
-            self.weight_list = []
-            self.weight_list.append(data.split('/')[1])
+            self.weightList = []
+            self.weightList.append(data.split('/')[1])
         elif data.startswith("end") :
-            self.parcing.restaurant(weight_list)
+            self.parcing.restaurant(self.weightList)
+        elif data.startswith("data") :
+            self.weightList.append(data.split('/')[1])
         else :
-            self.weight_list.append(data)
+            pass 
+        
            
 
 
@@ -167,32 +171,31 @@ def rcv_data (device,  delegate) :
     print ("-------------------------------------------------------")                 
     for ch in chList:
         if ch.uuid == weight_UUID :
-            weightHandle = ch.getHandle()+1
+            weightHandle = ch.getHandle() +1
         print ("  0x"+ format(ch.getHandle(),'02X')  +"   "+str(ch.uuid) +" " + ch.propertiesToString())
     # Turn notifications on weight Service 
     device.writeCharacteristic(weightHandle, struct.pack('<bb', 0x01, 0x00), withResponse=True)
-    
-    
+
     while (True):    
         if device.waitForNotifications(1.0) :
-            last = time.time()
             pass
         else :
-            if (time.time() - last   > 60):
-                delegate.upload()
-            else :
-                pass
+            pass
+
+
 def capture (uid) :
     parcing = Parcing(uid)
     weight = Weight()
     camera = Camera()
     while(True) :
-        # 2.1 무게 측정
-        print('weight')
-        dog_weight = weight.weight()
-    
+        # # 2.1 무게 측정
+        # print('weight')
+        # dog_weight = weight.weight()
+        dog_weight = 0
+
         # 2.2 카메라 촬영
         print('capture')
+
         img = camera.capture()
         # img = cv2.imread('img.JPG')
         # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -200,33 +203,37 @@ def capture (uid) :
 
         # 2.3
         print('analysis')
-    global uid 
+        parcing.restroom(img, dog_weight)
 
 
 def main():
     global uid 
     setWifi()
+    
+    # uid = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImEwMTA1NTgxMDQ5NkBnbWFpbC5jb20iLCJpYXQiOjE2MjEwNjUzMzksImV4cCI6MTY4MzI3MzMzOX0.xXX8rZcQOVXvY2yHtrsqvgZgEl66LztAWa7Ik0nDCfI"
+
     threads = []
     #bluepy.btle.Debugging = True
-    while (True):
-        while (True) :
-            peripheral = findDevice()
-            if peripheral :
-                break
-            else :
-                print ("The device cannot be found")
-                # time.sleep(10)
+    # while (True):
+        # while (True) :
+        #     peripheral = findDevice()
+        #     if peripheral:
+        #         break
+        #     else :
+        #         print ("The device cannot be found")
+        #         # time.sleep(10)
 
-        #set Delegate into peripheral object
-        delegate = MyDelegate(peripheral)
-        peripheral.setDelegate(delegate)
-        print("Find Device")
-      u  threads.append(threading.Thread(target = rcv_data, args =  (peripheral,delegate ))) #receive data from Arduino
-        threads.append(threading.Thread(target = capture, args = id))                        #capture 
-        for iter in range(len(threads)) :   
-            threads[iter].start()
-        for iter in range(len(threads)) :
-            threads[iter].join()
+        # #set Delegate into peripheral object
+        # delegate = MyDelegate(peripheral)
+        # peripheral.setDelegate(delegate)
+        # print("Find Device")
+        # threads.append(threading.Thread(target = rcv_data, args =  (peripheral,delegate))) #receive data from Arduino
+    threads.append(threading.Thread(target = capture, args = (uid,)))                        #capture 
+    for iter in range(len(threads)) :   
+        threads[iter].start()
+    for iter in range(len(threads)) :
+        threads[iter].join()
+    threads = []
 
 if __name__ == '__main__':
     main()
