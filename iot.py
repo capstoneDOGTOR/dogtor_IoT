@@ -26,7 +26,7 @@ class Weight():
         flag = 1
         while True:
             val = self.hx.get_weight(5)
-            # print(val)
+            print(val)
 
             if val > 0:
                 flag = 2
