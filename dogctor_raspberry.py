@@ -3,6 +3,68 @@ import threading
 import bluepy.btle
 from data_process import *
 
+
+def setWifi():
+    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+
+    uid =""
+    wifi_name = ""
+    wifi_password = ""
+ 
+
+    # RFCOMM 포트를 통해 데이터 통신을 하기 위한 준비    
+    server_sock=BluetoothSocket( RFCOMM )
+    server_sock.bind(('',PORT_ANY))
+    server_sock.listen(1)
+
+    port = server_sock.getsockname()[1]
+
+    # # 블루투스 서비스를 Advertise
+    # advertise_service( server_sock, "setWifi",
+    #         service_id = uuid,
+    #         service_classes = [ uuid, SERIAL_PORT_CLASS ],
+    #         profiles = [ SERIAL_PORT_PROFILE ] )
+    
+    print("Waiting for connection : channel %d" % port)
+    # 클라이언트가 연결될 때까지 대기
+    client_sock, client_info = server_sock.accept()
+    print('accepted')
+    while True:          
+        print("Accepted connection from ", client_info)
+        try:
+            # 들어온 데이터를 역순으로 뒤집어 전달
+            data = client_sock.recv(1024)
+            if len(data) == 0: break
+            if "from_app" in data:
+                array  =  data.split('/')
+                uid = array[1]
+                wifi_name = array[2]
+                wifi_password = array[3]
+                os.system('sed \'/}$/a\\network={\\n        ssid=\"'+wifi_name+'\"\\n        psk=\"'+wifi_password+'\"\\n        key_mgmt=WPA-PSK\\n        disabled=1\\n}\' /etc/wpa_supplicant/wpa_supplicant.conf')
+                os.system('reboot')
+            print("uid          :" +uid)
+            print("wifi_name    :"+wifi_name)
+            print("wifi_password:"+wifi_password)
+
+
+            client_sock.send(data[::-1])
+        except IOError:
+            print("disconnected")
+            client_sock.close()
+            server_sock.close()
+            print("all done")
+            break
+
+        except KeyboardInterrupt:
+            print("disconnected")
+            client_sock.close()
+            server_sock.close()
+            print("all done")
+            break
+
+
+
+
 def findDevice () : 
     target_name = "BT04"   # target device name
     target_address = None     # target device address
@@ -102,6 +164,8 @@ def main():
         peripheral.setDelegate(delegate)
         print("Find Device")
         t = threading.Thread(target = rcv_data, args =  (peripheral,delegate ))
+        threads.append(t)
+        t = threading.Thread(target = setWifi)
         threads.append(t)
         for iter in range(len(threads)) :
             threads[iter].start()
