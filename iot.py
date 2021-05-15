@@ -25,7 +25,7 @@ class Weight():
         weight_list = []
         flag = 1
         while True:
-            val = self.hx.get_weight(5)
+            val = int(self.hx.get_weight(5))
             print(val)
 
             if val > 0:
