@@ -5,7 +5,6 @@ class Parcing():
     def __init__(self, uid):
         self.cluster = 5
         self.send = send(uid)
-        
 
     def restroom(self, img, weight):
 
