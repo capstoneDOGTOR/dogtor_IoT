@@ -27,7 +27,8 @@ img = camera.capture()
 img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 cv2.imwrite('./sample1.jpg', img)
 
-# 2.3 parcing
+
+# 2.3
 print('2.3')
 parcing.restroom(img, val)
 

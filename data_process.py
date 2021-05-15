@@ -21,10 +21,15 @@ class Parcing():
             hsv = poo['hsv'].astype('uint8')
             size = round(poo['size']* 100, 3)
             color = hsv2color(hsv)
+            if color == 'brown':
+                flag = True
+            else:
+                flag = False
+
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/'+ str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, size, color)
+            dict = self.make_restroom_dict(rgb, hsv, size, color, flag)
             print('poo  :', dict)
             self.send.send_json(dict, 'poo')
 
@@ -33,11 +38,15 @@ class Parcing():
             hsv = pee['hsv'].astype('uint8')
             size = round(pee['size']* 100, 3)
             color = hsv2color(hsv)
+            if color == 'yellow':
+                flag = True
+            else:
+                flag = False
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/' + str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, size, color)
+            dict = self.make_restroom_dict(rgb, hsv, size, color, flag)
             print('pee  :', dict)
             self.send.send_json(dict, 'pee')
 
@@ -65,11 +74,12 @@ class Parcing():
         }
         return dict
 
-    def make_restroom_dict(self, rgb, hsv, size, color):
+    def make_restroom_dict(self, rgb, hsv, size, color, flag):
         dict = {
             'RGB': str(rgb),
             'HSV': str(hsv),
             'size': str(size),  # 소수점 세번째까지
-            'color': color
+            'color': color,
+            'flag': flag
         }
         return dict
