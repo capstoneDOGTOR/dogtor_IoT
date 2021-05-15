@@ -14,7 +14,7 @@ class Weight():
 
     def get(self):
         val = int(self.hx.get_weight(5) * -1)
-
+        print(val)
         return val
 
     def weight(self):
