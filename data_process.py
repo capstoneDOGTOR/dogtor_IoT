@@ -22,9 +22,9 @@ class Parcing():
             size = round(poo['size']* 100, 3)
             color = hsv2color(hsv, rgb)
             if color == 'brown':
-                flag = True
-            else:
                 flag = False
+            else:
+                flag = True
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/'+ str(hsv[2])
@@ -39,9 +39,9 @@ class Parcing():
             size = round(pee['size']* 100, 3)
             color = hsv2color(hsv, rgb)
             if color == 'yellow':
-                flag = True
-            else:
                 flag = False
+            else:
+                flag = True
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/' + str(hsv[2])
