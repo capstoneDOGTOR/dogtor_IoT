@@ -19,7 +19,7 @@ class Weight():
 
     def weight(self):
         self.hx.set_reading_format("MSB", "MSB")
-        self.hx.set_reference_unit(40)
+        self.hx.set_reference_unit(25)
         self.hx.reset()
         self.hx.tare()
 
