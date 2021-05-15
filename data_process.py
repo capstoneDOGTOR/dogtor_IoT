@@ -29,7 +29,7 @@ class Parcing():
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/'+ str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, size, color, flag)
+            dict = self.make_restroom_dict(send_rgb, send_hsv , size, color, flag)
             print('poo  :', dict)
             self.send.send_json(dict, 'poo')
 
@@ -46,7 +46,7 @@ class Parcing():
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/' + str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, size, color, flag)
+            dict = self.make_restroom_dict(send_rgb, send_hsv , size, color, flag)
             print('pee  :', dict)
             self.send.send_json(dict, 'pee')
 
