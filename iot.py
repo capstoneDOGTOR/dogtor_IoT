@@ -37,7 +37,7 @@ class Weight():
                     cnt = Counter(weight_list)
                     break
 
-            time.sleep(1000)
+            time.sleep(10)
 
         GPIO.cleanup()
         return cnt[0]
