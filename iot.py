@@ -12,35 +12,38 @@ class Weight():
     def __init__(self):
         self.hx = HX711(21, 20) #DAT CLK
 
+    def get(self):
+        val = int(self.hx.get_weight(5) * -1)
+
+        return val
+
     def weight(self):
         self.hx.set_reading_format("MSB", "MSB")
-        self.hx.set_reference_unit(4000)
+        self.hx.set_reference_unit(40)
         self.hx.reset()
         self.hx.tare()
 
         # hx.power_down()
         # hx.power_up()
         # time.sleep(0.1)
-
-        weight_list = []
-        flag = 1
-        while True:
-            val = int(self.hx.get_weight(5) * -1)
-            print(val)
-
-            if val > 0:
-                flag = 2
-
-            if flag == 2:
-                weight_list.append(val)
-                if val == 0:
-                    cnt = Counter(weight_list)
-                    break
-
+        val = 0
+        while val == 0:
+            val = self.get()
             time.sleep(10)
 
+        weight_list = []
+        cnt = 3
+        for i in range(cnt):
+            val = self.get()
+            if val == 0:
+                break
+            weight_list.append(val)
+            time.sleep(10)
+
+        weight = sum(weight_list) / cnt
+
         GPIO.cleanup()
-        return cnt[0]
+        return weight
 
 class Camera():
     def __init__(self):
