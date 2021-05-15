@@ -4,6 +4,7 @@ import numpy as np
 from picamera import PiCamera
 from io import BytesIO
 from PIL import Image
+from collections import Counter
 
 from hx711 import HX711
 
@@ -17,13 +18,29 @@ class Weight():
         self.hx.reset()
         self.hx.tare()
 
-        val = self.hx.get_weight(5)
         # hx.power_down()
         # hx.power_up()
         # time.sleep(0.1)
-        GPIO.cleanup()
 
-        return val
+        weight_list = []
+        flag = 1
+        while True:
+            val = self.hx.get_weight(5)
+            # print(val)
+
+            if val > 0:
+                flag = 2
+
+            if flag == 2:
+                weight_list.append(val)
+                if val == 0:
+                    cnt = Counter(weight_list)
+                    break
+
+            delay(1000)
+
+        GPIO.cleanup()
+        return cnt[0]
 
 class Camera():
     def __init__(self):

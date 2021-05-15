@@ -3,14 +3,14 @@ import cv2
 from sklearn.cluster import KMeans
 # import matplotlib.pyplot as plt
 
-def change_brightness(img):
+def change_brightness(img): # 밝기 조정
     bright = 125 - np.mean(img)
 
     img = np.clip(img + bright, 0, 255).astype(np.uint8)
 
     return img
 
-def find_pad(img):
+def find_pad(img): # 배변패드 위치 확인
     mark = np.copy(img)
     b_threshold = 200
     g_threshold = 200
@@ -22,7 +22,7 @@ def find_pad(img):
     return mark
 
 
-def region_of_interest(img, vertices):
+def region_of_interest(img, vertices): # ROI 설정
     mask = np.zeros_like(img)
     color = (255, 255, 255)
 
@@ -31,7 +31,7 @@ def region_of_interest(img, vertices):
 
     return roi_image
 
-def segmentation(img, cluster):
+def segmentation(img, cluster): # clustering
     img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     flat_image = np.reshape(img, [-1, 3])
 
@@ -44,7 +44,7 @@ def segmentation(img, cluster):
 
     return labels, centers
 
-def size_color(labels, centers):
+def size_color(labels, centers): # size, color 추출
     numlabels = np.arange(0, len(np.unique(labels)) + 1)
     (hist, _) = np.histogram(labels, bins=numlabels)
     hist = hist.astype('float')
@@ -53,7 +53,7 @@ def size_color(labels, centers):
 
     return sizes, colors
 
-def masking(img, cluster):
+def masking(img, cluster): # 이미지 masking
     masks = []
 
     for i in range(cluster):
@@ -102,7 +102,7 @@ def hsv2rgb(hsv):
 
     return np.array([r * 255, g * 255, b * 255]).astype('uint8')
 
-def hsv2color(hsv):
+def hsv2color(hsv): # 색 판별
     h = hsv[0] * 2
     s = int(hsv[1] / 255 * 100)
     v = int(hsv[2] / 255 * 100)
@@ -129,7 +129,7 @@ def hsv2color(hsv):
     elif h >= 170 and h < 340:
         return 'purple'
 
-def classify(colors, sizes, masks):
+def classify(colors, sizes, masks): # 대소변 구분
     poo = dict()
     pee = dict()
     poo['size'] = 0
@@ -189,25 +189,26 @@ def process_img(img, cluster):
     # plt.show()
 
     # ROI
-    vertices = np.array([[(0, 360), (60, 312), (529, 292), (640, 364), (640, 480), (0, 480)]], dtype=np.int32)
+    vertices = np.array([[(0, 360), (60, 312), (529, 292), (640, 364),
+                          (640, 480), (0, 480)]], dtype=np.int32)
     img = region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
     # cv2.imwrite('./sample2.jpg', img)
     # plt.imshow(img)
     # plt.show()
 
     # find pad
-    img = find_pad(img)
+    img = find_pad(img) # image 위에서 흰색 배변패드 인식
     # cv2.imwrite('./sample3.jpg', img)
     # plt.imshow(img)
     # plt.show()
 
     # segmentation
-    labels, centers = segmentation(img, cluster)
+    labels, centers = segmentation(img, cluster) # clustering, 색상을 기준으로 분류
     # plt.imshow(labels)
     # plt.show()
 
     # masking
-    masks = masking(labels, cluster)
+    masks = masking(labels, cluster) # 분류된 이미지 masking
     # for img in masks:
         # plt.imshow(img)
         # plt.show()
@@ -219,11 +220,11 @@ def process_img(img, cluster):
     # plt.show()
 
     # size, color
-    sizes, colors = size_color(labels, centers)
+    sizes, colors = size_color(labels, centers) # 분류된 이미지의 size, color 추출
     # print('color    :', colors)
     # print('sizes    :', sizes)
 
     # extract color & classify
-    poo, pee = classify(colors, sizes, masks)
+    poo, pee = classify(colors, sizes, masks) # 대소변 구분
 
     return poo, pee
