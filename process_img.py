@@ -108,7 +108,7 @@ def hsv2color(hsv,rgb): # 색 판별
     v = int(hsv[2] / 255 * 100)
 
     black = np.array([30, 30, 30])
-    if (rgb == black).all():
+    if (rgb < black).all():
         if v > 30:
             return 'gray'
         return 'black'

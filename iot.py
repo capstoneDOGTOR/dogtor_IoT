@@ -29,7 +29,7 @@ class Weight():
         val = 0
         while val < 20:
             val = self.get()
-            time.sleep(10)
+            time.sleep(1)
 
         weight_list = []
         cnt = 3
