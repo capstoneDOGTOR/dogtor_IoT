@@ -29,6 +29,7 @@ void loop() {
 
     if (flag == 1) {
       before_weight = scale1.get_units(5);
+      delay(3000);
       now_weight = scale1.get_units(5);
       if (before_weight != now_weight) {
         start_time = (unsigned long)millis();

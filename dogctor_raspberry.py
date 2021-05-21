@@ -176,9 +176,8 @@ class Defecation_pad :
         camera = Camera()
         while(True) :
             # # 2.1 무게 측정
-            # print('weight')
-            # dog_weight = weight.weight()
-            dog_weight = 0
+            print('weight')
+            dog_weight = weight.weight()
 
             # 2.2 카메라 촬영
             print('capture')
