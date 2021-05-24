@@ -185,7 +185,7 @@ class Defecation_pad :
             img = camera.capture()
             # img = cv2.imread('img.JPG')
             # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            cv2.imwrite('./sample1.jpg', img)
+            # cv2.imwrite('./sample1.jpg', img)
 
             # 2.3
             print('analysis')
