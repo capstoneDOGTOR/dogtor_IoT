@@ -17,7 +17,7 @@ int max_weight = 0;
 int weight = 0;
 unsigned long start_time = 0;
 unsigned long now_time = 0;
-int eating_time = 10000;
+int eating_time = 600000000;
 
 void setup() {
   scale1.set_scale(-405.0);    // this value is obtained by calibrating the scale with known weights; see the README for details
@@ -31,7 +31,7 @@ void setup() {
 void loop() {
 
     if (flag == 1) { // wait
-      Serial.println("wait");
+      Serial.println("button");
       before_weight = scale1.get_units(5);
       delay(3000);
       now_weight = scale1.get_units(5);
