@@ -190,7 +190,7 @@ def process_img(img, cluster):
     # plt.show()
 
     # ROI
-    vertices = np.array([[(0, 360), (60, 312), (529, 292), (640, 364),
+    vertices = np.array([[(0, 330), (65, 300), (570, 310), (640, 340),
                           (640, 480), (0, 480)]], dtype=np.int32)
     img = region_of_interest(img, vertices)  # vertices에 정한 점들 기준으로 ROI 이미지 생성
     cv2.imwrite('./sample2.jpg', img)
