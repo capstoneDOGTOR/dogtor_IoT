@@ -13,8 +13,9 @@ class Weight():
         self.hx = HX711(21, 20) #DAT CLK
 
     def start(self):
+        print('weight start')
         while(True):
-            val = int(self.hx.get_weight(5) * -1)
+            val = int(self.hx.get_weight(5))
             print(val)
 
             if val > 20:
@@ -27,9 +28,10 @@ class Weight():
         return
 
     def get(self):
+        print('weight get')
         weight_list = []
         while(True):
-            val = int(self.hx.get_weight(5) * -1)
+            val = int(self.hx.get_weight(5))
             print(val)
 
             if val < 20:
