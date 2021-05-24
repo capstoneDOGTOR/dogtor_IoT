@@ -10,8 +10,11 @@ HX711 scale1(A0, A1);
 SoftwareSerial mySerial(8, 7);
 int button = 2; // interrupt pin
 
-flag = 0
-weight = 0
+int flag = 0;
+int before_weight = 0;
+int now_weight = 0;
+int max_weight = 0;
+int weight = 0;
 unsigned long start_time = 0;
 unsigned long now_time = 0;
 int eating_time = 10000;
@@ -28,9 +31,10 @@ void setup() {
 void loop() {
 
     if (flag == 1) { // wait
+      Serial.println("wait");
       before_weight = scale1.get_units(5);
       delay(3000);
-      now_weight = wscale1.get_units(5);
+      now_weight = scale1.get_units(5);
 
       if (before_weight != now_weight) { // dog does touch his/her food
         if (now_weight > 0) {
@@ -68,6 +72,7 @@ void loop() {
 
 void buttoninterrupt() { // interrupt, user push the button
     // use debounce if it doesnt't work well
+    Serial.println("button");
     max_weight = scale1.get_units(5);
     flag = 1;
 }
