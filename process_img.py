@@ -196,35 +196,29 @@ def process_img(img, cluster):
     cv2.imwrite('./sample2.jpg', img)
     # plt.imshow(img)
     # plt.show()
-
     # find pad
     img = find_pad(img) # image 위에서 흰색 배변패드 인식
     # cv2.imwrite('./sample3.jpg', img)
     # plt.imshow(img)
     # plt.show()
-
     # segmentation
     labels, centers = segmentation(img, cluster) # clustering, 색상을 기준으로 분류
     # plt.imshow(labels)
     # plt.show()
-
     # masking
     masks = masking(labels, cluster) # 분류된 이미지 masking
     # for img in masks:
         # plt.imshow(img)
         # plt.show()
-
     # find edge
     # edge = find_edge(labels, self.cluster+1)
     # cv2.imwrite('./sample4.jpg', edge)
     # plt.imshow(edge)
     # plt.show()
-
     # size, color
     sizes, colors = size_color(labels, centers) # 분류된 이미지의 size, color 추출
     # print('color    :', colors)
     # print('sizes    :', sizes)
-
     # extract color & classify
     poo, pee = classify(colors, sizes, masks) # 대소변 구분
 
