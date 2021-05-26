@@ -9,14 +9,13 @@ import os
 from iot import *
 from send import *
 
-<<<<<<< Updated upstream
 class RCV_BT :
     def __init__(self):
         self.uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
         self.wifi_name = ""
         self.wifi_password = ""
         self.interface = 'wlan0'
-    
+        self.pin_number = '20644'
     def setWifi(self):
         global uid
         # RFCOMM 포트를 통해 데이터 통신을 하기 위한 준비    
@@ -51,31 +50,19 @@ class RCV_BT :
                             # grep did not match any lines
                             print("No wireless networks connected")
                     break
-=======
-def setWifi():
-    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-    uid =""
-    wifi_name = ""
-    wifi_password = ""
-    pin_number = 'ddddd'
- 
-
-    # RFCOMM 포트를 통해 데이터 통신을 하기 위한 준비    
-    server_sock=BluetoothSocket( RFCOMM )
-    server_sock.bind(('',PORT_ANY))
-    server_sock.listen(1)
-    port = server_sock.getsockname()[1]
-
-     # 블루투스 서비스를 Advertise
-    advertise_service( server_sock, "setWifi",service_id = uuid, service_classes = [ uuid, SERIAL_PORT_CLASS ], profiles = [ SERIAL_PORT_PROFILE ] )
->>>>>>> Stashed changes
     
                 data = data.decode()
                 if "from_app" in data:
                     array  =  data.split('/')
+                    if self.pin_number != array[4]:
+                        continue
                     uid = array[1]
                     self.wifi_name = array[2]
                     self.wifi_password = array[3]
+                    infoFile = open('/home/pi/git/capstone/info', 'w')
+                    infoFile.write(data)
+                    infoFile.close()
+
                     # os.system('sed \'/}$/a\\network={\\n        ssid=\"'+self.wifi_name+'\"\\n        psk=\"'+self.wifi_password+'\"\\n        key_mgmt=WPA-PSK\\n        disabled=1\\n}\' /etc/wpa_supplicant/wpa_supplicant.conf')
                     # os.system('reboot')
                     print("uid          :" +uid)
@@ -172,30 +159,15 @@ class RCV_BLE() :
         print ("Handle   self.uuid                                Properties")
         print ("-------------------------------------------------------")                 
         for ch in chList:
-            if ch.self.uuid == self.uuid :
+            if ch.uuid == self.uuid :
                 weightHandle = ch.getHandle() +1
-            print ("  0x"+ format(ch.getHandle(),'02X')  +"   "+str(ch.self.uuid) +" " + ch.propertiesToString())
+            print ("  0x"+ format(ch.getHandle(),'02X')  +"   "+str(ch.uuid) +" " + ch.propertiesToString())
         # Turn notifications on weight Service 
         device.writeCharacteristic(weightHandle, struct.pack('<bb', 0x01, 0x00), withResponse=True)
         while (True):    
             if device.waitForNotifications(1.0) :
                 pass
             else :
-<<<<<<< HEAD
-                print ("The device cannot be found")
-                # time.sleep(10)
-
-        #set Delegate into peripheral object
-        delegate = MyDelegate(peripheral)
-        peripheral.setDelegate(delegate)
-        print("Find Device")
-        threads.append(threading.Thread(target = rcv_data, args =  (peripheral,delegate ))) #receive data from Arduino
-        threads.append(threading.Thread(target = capture, args = id))                        #capture 
-        for iter in range(len(threads)) :   
-            threads[iter].start()
-        for iter in range(len(threads)) :
-            threads[iter].join()
-=======
                 pass
 
   
@@ -258,7 +230,6 @@ class Raspberry :
                 self.threads[iter].join()
             self.threads = []
 
->>>>>>> 04604e7fb0af317dd6eeccf381b668d34c49d2d4
 
 if __name__ == '__main__':
     rasp = Raspberry()
