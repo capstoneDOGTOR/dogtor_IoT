@@ -1,0 +1,11 @@
+digraph "packages_total2" {
+charset="utf-8"
+rankdir=BT
+"0" [label="data_process", shape="box"];
+"1" [label="dogctor_raspberry", shape="box"];
+"2" [label="process_img", shape="box"];
+"3" [label="send", shape="box"];
+"0" -> "2" [arrowhead="open", arrowtail="none"];
+"0" -> "3" [arrowhead="open", arrowtail="none"];
+"1" -> "0" [arrowhead="open", arrowtail="none"];
+}

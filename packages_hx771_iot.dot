@@ -1,0 +1,7 @@
+digraph "packages_hx771_iot" {
+charset="utf-8"
+rankdir=BT
+"0" [label="hx711", shape="box"];
+"1" [label="iot", shape="box"];
+"1" -> "0" [arrowhead="open", arrowtail="none"];
+}

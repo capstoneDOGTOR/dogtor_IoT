@@ -22,14 +22,14 @@ class Parcing():
             size = round(poo['size']* 100, 3)
             color = hsv2color(hsv, rgb)
             if color == 'brown':
-                flag = True
-            else:
                 flag = False
+            else:
+                flag = True
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/'+ str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, size, color, flag)
+            dict = self.make_restroom_dict(send_rgb, send_hsv , size, color, flag)
             print('poo  :', dict)
             self.send.send_json(dict, 'poo')
 
@@ -37,29 +37,30 @@ class Parcing():
             rgb = pee['rgb'].astype('uint8')
             hsv = pee['hsv'].astype('uint8')
             size = round(pee['size']* 100, 3)
-            color = hsv2color(hsv)
+            color = hsv2color(hsv, rgb)
             if color == 'yellow':
-                flag = True
-            else:
                 flag = False
+            else:
+                flag = True
 
             send_rgb = '#' + str(hex(rgb[0]))[2:] + str(hex(rgb[1]))[2:] + str(hex(rgb[2]))[2:]
             send_hsv = str(hsv[0]) + '/' + str(hsv[1]) + '/' + str(hsv[2])
 
-            dict = self.make_restroom_dict(rgb, hsv, size, color, flag)
+            dict = self.make_restroom_dict(send_rgb, send_hsv , size, color, flag)
             print('pee  :', dict)
             self.send.send_json(dict, 'pee')
 
 
     def restaurant(self, weight_list):
-        weights = np.array(weight_list)
-        max = weight_list[0]
-
-
+        weights = np.array(weight_list, dtype = np.int64)
+        print("weights List ", weights)
+        max = weights[0]
         quantile = np.percentile(weights, [25, 75], interpolation='nearest')
-        iqr = quantile[1] - quantile[0]
-        outlier_max = iqr * 1.5 + quantile[1]
+        iqr = (quantile[1]) - (quantile[0])
+        outlier_max = iqr * 1.5 + (quantile[1])
         result = weights[np.where(weights <= outlier_max)]
+        result = result[np.where(weights > 0)]
+        
         dict = self.make_restaurant_dict(max- result.min())
         print(dict)
         self.send.send_json(dict, 'intake')

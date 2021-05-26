@@ -12,10 +12,38 @@ class Weight():
     def __init__(self):
         self.hx = HX711(21, 20) #DAT CLK
 
+    def start(self):
+        print('weight start')
+        while(True):
+            val = int(self.hx.get_weight(5))
+            print(val)
+
+            if val > 20:
+                break
+            else:
+                self.hx.power_down()
+                time.sleep(10)
+                self.hx.power_up()
+
+        return
+
     def get(self):
-        val = int(self.hx.get_weight(5) * -1)
-        print(val)
-        return val
+        print('weight get')
+        weight_list = []
+        while(True):
+            val = int(self.hx.get_weight(5))
+            print(val)
+
+            if val < 20:
+                break
+            else:
+                weight_list.append(val)
+                self.hx.power_down()
+                time.sleep(10)
+                self.hx.power_up()
+
+        weight = sum(weight_list) / len(weight_list)
+        return weight
 
     def weight(self):
         self.hx.set_reading_format("MSB", "MSB")
@@ -23,24 +51,8 @@ class Weight():
         self.hx.reset()
         self.hx.tare()
 
-        # hx.power_down()
-        # hx.power_up()
-        # time.sleep(0.1)
-        val = 0
-        while val < 20:
-            val = self.get()
-            time.sleep(1)
-
-        weight_list = []
-        cnt = 3
-        for i in range(cnt):
-            val = self.get()
-            if val == 0:
-                break
-            weight_list.append(val)
-            time.sleep(10)
-
-        weight = sum(weight_list) / cnt
+        self.start()
+        weight = self.get()
 
         GPIO.cleanup()
         return weight
