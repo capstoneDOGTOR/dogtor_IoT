@@ -9,6 +9,7 @@ import os
 from iot import *
 from send import *
 
+<<<<<<< Updated upstream
 class RCV_BT :
     def __init__(self):
         self.uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -50,6 +51,24 @@ class RCV_BT :
                             # grep did not match any lines
                             print("No wireless networks connected")
                     break
+=======
+def setWifi():
+    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+    uid =""
+    wifi_name = ""
+    wifi_password = ""
+    pin_number = 'ddddd'
+ 
+
+    # RFCOMM 포트를 통해 데이터 통신을 하기 위한 준비    
+    server_sock=BluetoothSocket( RFCOMM )
+    server_sock.bind(('',PORT_ANY))
+    server_sock.listen(1)
+    port = server_sock.getsockname()[1]
+
+     # 블루투스 서비스를 Advertise
+    advertise_service( server_sock, "setWifi",service_id = uuid, service_classes = [ uuid, SERIAL_PORT_CLASS ], profiles = [ SERIAL_PORT_PROFILE ] )
+>>>>>>> Stashed changes
     
                 data = data.decode()
                 if "from_app" in data:
