@@ -2,6 +2,8 @@ from bluepy.btle import *
 import threading    
 import bluepy.btle
 from data_process import *
+
+
 import bluetooth
 from bluetooth import *
 import subprocess
@@ -68,6 +70,7 @@ class RCV_BT :
                     print("uid          :" +uid)
                     print("self.wifi_name    :"+self.wifi_name)
                     print("self.wifi_password:"+self.wifi_password)
+
                     client_sock.send(data[::-1])
                     ps = subprocess.Popen(['iwconfig'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     try:
@@ -183,15 +186,15 @@ class Defecation_pad :
         while(True) :
             # # 2.1 무게 측정
             print('weight')
-            dog_weight = weight.weight()
-
+            # dog_weight = weight.weight()
+            dog_weight =0
             # 2.2 카메라 촬영
             print('capture')
 
             img = camera.capture()
             # img = cv2.imread('img.JPG')
             # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            # cv2.imwrite('./sample1.jpg', img)
+            cv2.imwrite('./sample1.jpg', img)
 
             # 2.3
             print('analysis')
@@ -200,7 +203,7 @@ class Defecation_pad :
 
 class Raspberry :
     def __init__(self):
-        bluepy.btle.Debugging = True
+        # bluepy.btle.Debugging = True
         self.appReceiver = RCV_BT()
         self.arduinoReceiver = RCV_BLE()
         self.pad = Defecation_pad()
@@ -208,27 +211,28 @@ class Raspberry :
         
     def service (self):
         global uid
-        self.appReceiver.setWifi()
-        while (True):
-            while (True) :
-                peripheral = self.arduinoReceiver.findDevice()
-                if peripheral:
-                    break
-                else :
-                    print ("The device cannot be found")
-                    # time.sleep(10)
+        # self.appReceiver.setWifi()
+        uid = "11111"
+        # while (True):
+        while (True) :
+            peripheral = self.arduinoReceiver.findDevice()
+            if peripheral:
+                break
+            else :
+                print ("The device cannot be found")
+                # time.sleep(10)
 
-            #set Delegate into peripheral object
-            delegate = MyDelegate(peripheral)
-            peripheral.setDelegate(delegate)
-            print("Find Device")
-            self.threads.append(threading.Thread(target = self.arduinoReceiver.rcv_data, args =  (peripheral,delegate)))    #receive data from Arduino
-            self.threads.append(threading.Thread(target = self.pad.capture))                                                #capture , send to Server
-            for iter in range(len(self.threads)) :   
-                self.threads[iter].start()
-            for iter in range(len(self.threads)) :
-                self.threads[iter].join()
-            self.threads = []
+        #set Delegate into peripheral object
+        delegate = MyDelegate(peripheral)
+        peripheral.setDelegate(delegate)
+        print("Find Device")
+        # self.threads.append(threading.Thread(target = self.arduinoReceiver.rcv_data, args =  (peripheral,delegate)))    #receive data from Arduino
+        self.threads.append(threading.Thread(target = self.pad.capture))                                                #capture , send to Server
+        for iter in range(len(self.threads)) :   
+            self.threads[iter].start()
+        for iter in range(len(self.threads)) :
+            self.threads[iter].join()
+            # self.threads = []
 
 
 if __name__ == '__main__':
